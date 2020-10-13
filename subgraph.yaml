@@ -1,0 +1,41 @@
+specVersion: 0.0.1
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: Contract
+    network: kovan
+    source:
+      address: "0xD4c84Fc7d3EA365A2824A8C908f93136e625bCeA"
+      abi: Contract
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.2
+      language: wasm/assemblyscript
+      entities:
+        - Approval
+        - BurnLiquidityPoolPortion
+        - CancelLiquidityPoolMigration
+        - CompleteLiquidityPoolMigration
+        - InitiateLiquidityPoolMigration
+        - OwnershipTransferred
+        - Transfer
+      abis:
+        - name: Contract
+          file: ./abis/Contract.json
+      eventHandlers:
+        - event: Approval(indexed address,indexed address,uint256)
+          handler: handleApproval
+        - event: BurnLiquidityPoolPortion(uint256,uint256)
+          handler: handleBurnLiquidityPoolPortion
+        - event: CancelLiquidityPoolMigration(indexed address)
+          handler: handleCancelLiquidityPoolMigration
+        - event: CompleteLiquidityPoolMigration(indexed address,uint256,uint256)
+          handler: handleCompleteLiquidityPoolMigration
+        - event: InitiateLiquidityPoolMigration(indexed address)
+          handler: handleInitiateLiquidityPoolMigration
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+      file: ./src/mapping.ts
