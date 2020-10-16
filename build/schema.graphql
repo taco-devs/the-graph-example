@@ -1,16 +1,12 @@
-type Transfer @entity {
-  id: ID!
-  from: Bytes
-  to: Bytes
-  amount: BigInt
-  transaction: Transaction
-  fromToken: Token
-}
-
 type Transaction @entity {
-  id: ID!
-  from: Bytes
-  transfers: [Transfer!]! @derivedFrom(field: "transaction")
+  id: ID! 
+  from: Bytes!
+  action: String!
+  type: String!
+  sent: BigInt
+  received: BigInt
+  fee: BigInt
+  block: BigInt
 }
 
 type Token @entity {

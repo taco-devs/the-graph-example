@@ -27,6 +27,12 @@ dataSources:
       callHandlers:
         - function: deposit(uint256)
           handler: handleDeposit
+        - function: depositUnderlying(uint256)
+          handler: handleDepositUnderlying
+        - function: withdraw(uint256)
+          handler: handleWithdraw
+        - function: withdrawUnderlying(uint256)
+          handler: handleWithdrawUnderlying
       eventHandlers:
         - event: Approval(indexed address,indexed address,uint256)
           handler: handleApproval

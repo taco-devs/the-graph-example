@@ -8,11 +8,16 @@ import {
   InitiateLiquidityPoolMigration,
   OwnershipTransferred,
   Transfer as TransferEvent,
-  DepositCall
-  // Transfer
+  DepositCall,
+  DepositUnderlyingCall,
+  WithdrawCall,
+  WithdrawUnderlyingCall
 } from "../generated/GToken/GToken"
 
-import { Transfer, Transaction, Token } from '../generated/schema';
+import { 
+  Token,
+  Transaction
+} from '../generated/schema';
 
 let whitelist: Array<string> = [
   '0xd4c84fc7d3ea365a2824a8c908f93136e625bcea'
@@ -113,78 +118,140 @@ export function handleInitiateLiquidityPoolMigration(
 
 export function handleOwnershipTransferred(event: OwnershipTransferred): void {}
 
-export function handleTransfer(event: TransferEvent): void {
-
-  // Get the transaction if it already exists
-  let transaction = Transaction.load(event.transaction.hash.toHex());
-
-  // Create the transaction if it doesn't 
-  if (transaction == null) {
-    transaction = new Transaction(event.transaction.hash.toHex());
-    transaction.from = event.transaction.from;
-  }
-
-  // Get the Transfer if it already exists
-  let transfer = Transfer.load(event.transactionLogIndex.toHex());
-
-  if (transfer == null) {
-    transfer = new Transfer(event.transactionLogIndex.toHex());
-  }
-
-  // Get the mint token
-  let fromToken = Token.load(event.params.from.toHex());
-
-  if (fromToken == null) {
-    fromToken = new Token(event.params.from.toHex());
-    
-    // Search for whitelisted addresses
-    if (whitelist.indexOf(event.params.from.toHex()) > -1) {
-      let token_contract = GToken.bind(event.params.from);
-      fromToken.name = token_contract.name();
-      fromToken.symbol = token_contract.symbol();
-    }
-
-  }
-  
-  transfer.transaction = transaction.id;
-  transfer.from = event.params.from;
-  transfer.to = event.params.to;
-  transfer.amount = event.params.value;
-  transfer.fromToken = fromToken.id;
-
-  fromToken.save();
-  transaction.save();
-  transfer.save();
-}
+export function handleTransfer(event: TransferEvent): void {};
 
 // Deposit
 export function handleDeposit(call: DepositCall): void {
 
-  let entity = Transaction.load(call.transaction.hash.toHex());
+  // Create a Mint entity
+  let mint = Transaction.load(call.transaction.hash.toHex());
 
-  if (entity == null) {
-    entity = new Transaction(call.transaction.hash.toHex());
+  // If there isn't a mint object create a new one
+  if (mint == null) {
+    mint = new Transaction(call.transaction.hash.toHex());
   }
 
-  entity.from = call.transaction.from;
-  entity.save();
+  // Instantiate the GToken Contract
+  let token_contract = GToken.bind(call.to);
+
+  // To be used for amount received
+  let totalReserve = token_contract.totalReserve();
+  let totalSupply = token_contract.totalSupply();
+  let depositFee = token_contract.depositFee();
+
+  // Calculate the amount received
+  let received = token_contract.calcDepositSharesFromCost(call.inputs._cost, totalReserve, totalSupply, depositFee);
+
+  mint.from = call.from;
+  mint.action = 'mint';
+  mint.type = 'base';
+  mint.sent = call.inputs._cost;
+  mint.received = received.value0;
+  mint.fee = received.value1;
+  mint.block = call.block.number;
+
+  mint.save();
 }
 
-/* export function handleInitialBlock(block: ethereum.Block): void {
-  const INITIAL_BLOCK = '21431182';
-  const TOKEN_ADDRESS = '0xD4c84Fc7d3EA365A2824A8C908f93136e625bCeA';
+// Deposit Underlying
+export function handleDepositUnderlying(call: DepositUnderlyingCall): void {
 
-/*   if (INITIAL_BLOCK === block.number.toString()){
-    // Init Block
-    let token = new Token(TOKEN_ADDRESS);
-    token.name = 'gcDAI';
-    token.symbol = 'gcDAI';
+  // Create a Mint entity
+  let mint = Transaction.load(call.transaction.hash.toHex());
 
-    token.save();
-  } 
-  let token = new Token(TOKEN_ADDRESS);
-    token.name = 'gcDAI';
-    token.symbol = 'gcDAI';
+  // If there isn't a mint object create a new one
+  if (mint == null) {
+    mint = new Transaction(call.transaction.hash.toHex());
+  }
 
-    token.save();
-} */
+  // Instantiate the GToken Contract
+  let token_contract = GToken.bind(call.to);
+
+  // To be used for amount received
+  let exchangeRate = token_contract.exchangeRate();
+  let underlyingConversion = token_contract.calcCostFromUnderlyingCost(call.inputs._underlyingCost, exchangeRate);
+  let totalReserve = token_contract.totalReserve();
+  let totalSupply = token_contract.totalSupply();
+  let depositFee = token_contract.depositFee();
+
+  // Calculate the amount received
+  let received = token_contract.calcDepositSharesFromCost(underlyingConversion, totalReserve, totalSupply, depositFee);
+
+  mint.from = call.from;
+  mint.action = 'mint';
+  mint.type = 'underlying';
+  mint.sent = call.inputs._underlyingCost;
+  mint.received = received.value0;
+  mint.fee = received.value1;
+  mint.block = call.block.number;
+
+  mint.save();
+}
+
+// Withdraw
+export function handleWithdraw(call: WithdrawCall): void {
+
+  // Create a Mint entity
+  let redeem = Transaction.load(call.transaction.hash.toHex());
+
+  // If there isn't a mint object create a new one
+  if (redeem == null) {
+    redeem = new Transaction(call.transaction.hash.toHex());
+  }
+
+  // Instantiate the GToken Contract
+  let token_contract = GToken.bind(call.to);
+
+  // To be used for amount received
+  let totalReserve = token_contract.totalReserve();
+  let totalSupply = token_contract.totalSupply();
+  let withdrawalFee = token_contract.withdrawalFee();
+
+  // Calculate the amount received
+  let received = token_contract.calcWithdrawalCostFromShares(call.inputs._grossShares, totalReserve, totalSupply, withdrawalFee);
+
+  redeem.from = call.from;
+  redeem.action = 'redeem';
+  redeem.type = 'base';
+  redeem.sent = call.inputs._grossShares;
+  redeem.received = received.value0;
+  redeem.fee = received.value1;
+  redeem.block = call.block.number;
+
+  redeem.save();
+}
+
+// Withdraw
+export function handleWithdrawUnderlying(call: WithdrawUnderlyingCall): void {
+
+  // Create a Mint entity
+  let redeem = Transaction.load(call.transaction.hash.toHex());
+
+  // If there isn't a mint object create a new one
+  if (redeem == null) {
+    redeem = new Transaction(call.transaction.hash.toHex());
+  }
+
+  // Instantiate the GToken Contract
+  let token_contract = GToken.bind(call.to);
+
+  // To be used for amount received
+  let exchangeRate = token_contract.exchangeRate();
+  let totalReserve = token_contract.totalReserve();
+  let totalSupply = token_contract.totalSupply();
+  let withdrawalFee = token_contract.withdrawalFee();
+  let _cost = token_contract.calcWithdrawalCostFromShares(call.inputs._grossShares, totalReserve, totalSupply, withdrawalFee);
+
+  // Calculate the amount received
+  let received = token_contract.calcUnderlyingCostFromCost(_cost.value0, exchangeRate);
+
+  redeem.from = call.from;
+  redeem.action = 'redeem';
+  redeem.type = 'base';
+  redeem.sent = call.inputs._grossShares;
+  redeem.received = received;
+  redeem.fee = _cost.value1;
+  redeem.block = call.block.number;
+
+  redeem.save();
+}

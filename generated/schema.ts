@@ -12,122 +12,6 @@ import {
   BigDecimal
 } from "@graphprotocol/graph-ts";
 
-export class Transfer extends Entity {
-  constructor(id: string) {
-    super();
-    this.set("id", Value.fromString(id));
-  }
-
-  save(): void {
-    let id = this.get("id");
-    assert(id !== null, "Cannot save Transfer entity without an ID");
-    assert(
-      id.kind == ValueKind.STRING,
-      "Cannot save Transfer entity with non-string ID. " +
-        'Considering using .toHex() to convert the "id" to a string.'
-    );
-    store.set("Transfer", id.toString(), this);
-  }
-
-  static load(id: string): Transfer | null {
-    return store.get("Transfer", id) as Transfer | null;
-  }
-
-  get id(): string {
-    let value = this.get("id");
-    return value.toString();
-  }
-
-  set id(value: string) {
-    this.set("id", Value.fromString(value));
-  }
-
-  get from(): Bytes | null {
-    let value = this.get("from");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set from(value: Bytes | null) {
-    if (value === null) {
-      this.unset("from");
-    } else {
-      this.set("from", Value.fromBytes(value as Bytes));
-    }
-  }
-
-  get to(): Bytes | null {
-    let value = this.get("to");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set to(value: Bytes | null) {
-    if (value === null) {
-      this.unset("to");
-    } else {
-      this.set("to", Value.fromBytes(value as Bytes));
-    }
-  }
-
-  get amount(): BigInt | null {
-    let value = this.get("amount");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set amount(value: BigInt | null) {
-    if (value === null) {
-      this.unset("amount");
-    } else {
-      this.set("amount", Value.fromBigInt(value as BigInt));
-    }
-  }
-
-  get transaction(): string | null {
-    let value = this.get("transaction");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toString();
-    }
-  }
-
-  set transaction(value: string | null) {
-    if (value === null) {
-      this.unset("transaction");
-    } else {
-      this.set("transaction", Value.fromString(value as string));
-    }
-  }
-
-  get fromToken(): string | null {
-    let value = this.get("fromToken");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toString();
-    }
-  }
-
-  set fromToken(value: string | null) {
-    if (value === null) {
-      this.unset("fromToken");
-    } else {
-      this.set("fromToken", Value.fromString(value as string));
-    }
-  }
-}
-
 export class Transaction extends Entity {
   constructor(id: string) {
     super();
@@ -158,30 +42,99 @@ export class Transaction extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get from(): Bytes | null {
+  get from(): Bytes {
     let value = this.get("from");
+    return value.toBytes();
+  }
+
+  set from(value: Bytes) {
+    this.set("from", Value.fromBytes(value));
+  }
+
+  get action(): string {
+    let value = this.get("action");
+    return value.toString();
+  }
+
+  set action(value: string) {
+    this.set("action", Value.fromString(value));
+  }
+
+  get type(): string {
+    let value = this.get("type");
+    return value.toString();
+  }
+
+  set type(value: string) {
+    this.set("type", Value.fromString(value));
+  }
+
+  get sent(): BigInt | null {
+    let value = this.get("sent");
     if (value === null) {
       return null;
     } else {
-      return value.toBytes();
+      return value.toBigInt();
     }
   }
 
-  set from(value: Bytes | null) {
+  set sent(value: BigInt | null) {
     if (value === null) {
-      this.unset("from");
+      this.unset("sent");
     } else {
-      this.set("from", Value.fromBytes(value as Bytes));
+      this.set("sent", Value.fromBigInt(value as BigInt));
     }
   }
 
-  get transfers(): Array<string> {
-    let value = this.get("transfers");
-    return value.toStringArray();
+  get received(): BigInt | null {
+    let value = this.get("received");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
   }
 
-  set transfers(value: Array<string>) {
-    this.set("transfers", Value.fromStringArray(value));
+  set received(value: BigInt | null) {
+    if (value === null) {
+      this.unset("received");
+    } else {
+      this.set("received", Value.fromBigInt(value as BigInt));
+    }
+  }
+
+  get fee(): BigInt | null {
+    let value = this.get("fee");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set fee(value: BigInt | null) {
+    if (value === null) {
+      this.unset("fee");
+    } else {
+      this.set("fee", Value.fromBigInt(value as BigInt));
+    }
+  }
+
+  get block(): BigInt | null {
+    let value = this.get("block");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set block(value: BigInt | null) {
+    if (value === null) {
+      this.unset("block");
+    } else {
+      this.set("block", Value.fromBigInt(value as BigInt));
+    }
   }
 }
 
