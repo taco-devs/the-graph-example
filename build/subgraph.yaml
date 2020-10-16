@@ -10,6 +10,9 @@ dataSources:
       abi: GToken
       startBlock: 21431182
     mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
       entities:
         - Approval
         - BurnLiquidityPoolPortion
@@ -18,6 +21,12 @@ dataSources:
         - InitiateLiquidityPoolMigration
         - OwnershipTransferred
         - Transfer
+      abis:
+        - name: GToken
+          file: GToken/abis/GToken.json
+      callHandlers:
+        - function: deposit(uint256)
+          handler: handleDeposit
       eventHandlers:
         - event: Approval(indexed address,indexed address,uint256)
           handler: handleApproval
@@ -33,15 +42,4 @@ dataSources:
           handler: handleOwnershipTransferred
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
-      callHandlers:
-        - function: deposit(uint256)
-          handler: handleDeposit
-      abis:
-        - name: GToken
-          file: GToken/abis/GToken.json
-      kind: ethereum/events
-      blockHandlers:
-        - handler: handleInitialBlock
-      language: wasm/assemblyscript
       file: GToken/GToken.wasm
-      apiVersion: 0.0.4

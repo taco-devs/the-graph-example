@@ -14,6 +14,10 @@ import {
 
 import { Transfer, Transaction, Token } from '../generated/schema';
 
+let whitelist: Array<string> = [
+  '0xd4c84fc7d3ea365a2824a8c908f93136e625bcea'
+]
+
 export function handleApproval(event: Approval): void {
   // Entities can be loaded from the store using a string ID; this ID
   // needs to be unique across all entities of the same type
@@ -133,12 +137,13 @@ export function handleTransfer(event: TransferEvent): void {
   if (fromToken == null) {
     fromToken = new Token(event.params.from.toHex());
     
-    let Token = GToken.bind(event.params.from);
-
-    if (Token) {
-      fromToken.name = Token.name();
-      fromToken.symbol = Token.symbol();
+    // Search for whitelisted addresses
+    if (whitelist.indexOf(event.params.from.toHex()) > -1) {
+      let token_contract = GToken.bind(event.params.from);
+      fromToken.name = token_contract.name();
+      fromToken.symbol = token_contract.symbol();
     }
+
   }
   
   transfer.transaction = transaction.id;
@@ -165,7 +170,7 @@ export function handleDeposit(call: DepositCall): void {
   entity.save();
 }
 
-export function handleInitialBlock(block: ethereum.Block): void {
+/* export function handleInitialBlock(block: ethereum.Block): void {
   const INITIAL_BLOCK = '21431182';
   const TOKEN_ADDRESS = '0xD4c84Fc7d3EA365A2824A8C908f93136e625bCeA';
 
@@ -176,10 +181,10 @@ export function handleInitialBlock(block: ethereum.Block): void {
     token.symbol = 'gcDAI';
 
     token.save();
-  } */
+  } 
   let token = new Token(TOKEN_ADDRESS);
     token.name = 'gcDAI';
     token.symbol = 'gcDAI';
 
     token.save();
-}
+} */

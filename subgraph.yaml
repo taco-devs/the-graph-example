@@ -42,6 +42,4 @@ dataSources:
           handler: handleOwnershipTransferred
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
-      blockHandlers: 
-        - handler: handleInitialBlock
       file: ./src/mapping.ts
