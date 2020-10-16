@@ -1,16 +1,17 @@
-specVersion: 0.0.1
+specVersion: 0.0.2
 schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: Contract
+    name: GToken
     network: kovan
     source:
       address: "0xD4c84Fc7d3EA365A2824A8C908f93136e625bCeA"
-      abi: Contract
+      abi: GToken
+      startBlock: 21431182
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.2
+      apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
         - Approval
@@ -21,8 +22,11 @@ dataSources:
         - OwnershipTransferred
         - Transfer
       abis:
-        - name: Contract
-          file: ./abis/Contract.json
+        - name: GToken
+          file: ./abis/GToken.json
+      callHandlers:
+        - function: deposit(uint256)
+          handler: handleDeposit
       eventHandlers:
         - event: Approval(indexed address,indexed address,uint256)
           handler: handleApproval
@@ -38,4 +42,6 @@ dataSources:
           handler: handleOwnershipTransferred
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
+      blockHandlers: 
+        - handler: handleInitialBlock
       file: ./src/mapping.ts

@@ -1,0 +1,47 @@
+specVersion: 0.0.2
+schema:
+  file: schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: GToken
+    network: kovan
+    source:
+      address: "0xD4c84Fc7d3EA365A2824A8C908f93136e625bCeA"
+      abi: GToken
+      startBlock: 21431182
+    mapping:
+      entities:
+        - Approval
+        - BurnLiquidityPoolPortion
+        - CancelLiquidityPoolMigration
+        - CompleteLiquidityPoolMigration
+        - InitiateLiquidityPoolMigration
+        - OwnershipTransferred
+        - Transfer
+      eventHandlers:
+        - event: Approval(indexed address,indexed address,uint256)
+          handler: handleApproval
+        - event: BurnLiquidityPoolPortion(uint256,uint256)
+          handler: handleBurnLiquidityPoolPortion
+        - event: CancelLiquidityPoolMigration(indexed address)
+          handler: handleCancelLiquidityPoolMigration
+        - event: CompleteLiquidityPoolMigration(indexed address,uint256,uint256)
+          handler: handleCompleteLiquidityPoolMigration
+        - event: InitiateLiquidityPoolMigration(indexed address)
+          handler: handleInitiateLiquidityPoolMigration
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+      callHandlers:
+        - function: deposit(uint256)
+          handler: handleDeposit
+      abis:
+        - name: GToken
+          file: GToken/abis/GToken.json
+      kind: ethereum/events
+      blockHandlers:
+        - handler: handleInitialBlock
+      language: wasm/assemblyscript
+      file: GToken/GToken.wasm
+      apiVersion: 0.0.4
