@@ -247,7 +247,7 @@ export function handleWithdrawUnderlying(call: WithdrawUnderlyingCall): void {
 
   redeem.from = call.from;
   redeem.action = 'redeem';
-  redeem.type = 'base';
+  redeem.type = 'underlying';
   redeem.sent = call.inputs._grossShares;
   redeem.received = received;
   redeem.fee = _cost.value1;
