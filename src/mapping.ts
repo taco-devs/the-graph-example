@@ -1,4 +1,4 @@
-import { BigInt, ethereum } from "@graphprotocol/graph-ts"
+import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts"
 import {
   GToken,
   Approval,
@@ -16,12 +16,26 @@ import {
 
 import { 
   Token,
-  Transaction
+  Transaction,
+  User
 } from '../generated/schema';
 
-let whitelist: Array<string> = [
-  '0xd4c84fc7d3ea365a2824a8c908f93136e625bcea'
-]
+// Aggregates the number of transactions done to the server
+function transactionAggregator(address: Address): void {
+  // Get the User
+  let user = User.load(address.toHex());
+
+  // If there isn't a user add a new one 
+  if (user == null) {
+    user = new User(address.toHex());
+    user.transactions = BigInt.fromI32(0);
+  }
+
+  // Add a new transaction to the user
+  user.transactions = user.transactions + BigInt.fromI32(1);
+  user.save();
+}
+
 
 export function handleApproval(event: Approval): void {
   // Entities can be loaded from the store using a string ID; this ID
@@ -123,6 +137,10 @@ export function handleTransfer(event: TransferEvent): void {};
 // Deposit
 export function handleDeposit(call: DepositCall): void {
 
+  // Handle transaction aggregation
+  transactionAggregator(call.from);
+
+
   // Create a Mint entity
   let mint = Transaction.load(call.transaction.hash.toHex());
 
@@ -155,6 +173,9 @@ export function handleDeposit(call: DepositCall): void {
 
 // Deposit Underlying
 export function handleDepositUnderlying(call: DepositUnderlyingCall): void {
+
+  // Handle transaction aggregation
+  transactionAggregator(call.from);
 
   // Create a Mint entity
   let mint = Transaction.load(call.transaction.hash.toHex());
@@ -191,6 +212,10 @@ export function handleDepositUnderlying(call: DepositUnderlyingCall): void {
 // Withdraw
 export function handleWithdraw(call: WithdrawCall): void {
 
+  // Handle transaction aggregation
+  transactionAggregator(call.from);
+
+
   // Create a Mint entity
   let redeem = Transaction.load(call.transaction.hash.toHex());
 
@@ -223,6 +248,9 @@ export function handleWithdraw(call: WithdrawCall): void {
 
 // Withdraw
 export function handleWithdrawUnderlying(call: WithdrawUnderlyingCall): void {
+
+  // Handle transaction aggregation
+  transactionAggregator(call.from);
 
   // Create a Mint entity
   let redeem = Transaction.load(call.transaction.hash.toHex());

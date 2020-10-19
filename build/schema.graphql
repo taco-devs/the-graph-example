@@ -9,6 +9,11 @@ type Transaction @entity {
   block: BigInt
 }
 
+type User @entity {
+  id: ID!
+  transactions: BigInt
+}
+
 type Token @entity {
   id: ID!
   name: String
