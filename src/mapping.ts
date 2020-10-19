@@ -28,6 +28,7 @@ function transactionAggregator(address: Address): void {
   // If there isn't a user add a new one 
   if (user == null) {
     user = new User(address.toHex());
+    user.address = address;
     user.transactions = BigInt.fromI32(0);
   }
 
