@@ -3,24 +3,39 @@ schema:
   file: schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: GToken
+    name: TokenRegistry
     network: kovan
     source:
-      address: "0xD4c84Fc7d3EA365A2824A8C908f93136e625bCeA"
-      abi: GToken
-      startBlock: 21431182
+      address: "0xCD17f51C6C3f6b6FA6ad75f77be3C708278c723A"
+      abi: TokenRegistry
+      startBlock: 21647320
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
-        - Approval
-        - BurnLiquidityPoolPortion
-        - CancelLiquidityPoolMigration
-        - CompleteLiquidityPoolMigration
-        - InitiateLiquidityPoolMigration
-        - OwnershipTransferred
-        - Transfer
+        - Directory
+      abis:
+        - name: TokenRegistry
+          file: TokenRegistry/abis/TokenRegistry.json
+      eventHandlers:
+        - event: NewToken(indexed address)
+          handler: handleNewToken
+      file: TokenRegistry/TokenRegistry.wasm
+templates:
+  - kind: ethereum/contract
+    name: GToken
+    network: kovan
+    source:
+      abi: GToken
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - Token
+        - Transaction
+        - User
       abis:
         - name: GToken
           file: GToken/abis/GToken.json
@@ -48,4 +63,4 @@ dataSources:
           handler: handleOwnershipTransferred
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
-      file: GToken/GToken.wasm
+      file: templates/GToken/GToken.wasm

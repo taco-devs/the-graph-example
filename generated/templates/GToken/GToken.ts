@@ -202,6 +202,40 @@ export class GToken__calcDepositSharesFromCostResult {
   }
 }
 
+export class GToken__calcDepositSharesFromUnderlyingCostResult {
+  value0: BigInt;
+  value1: BigInt;
+
+  constructor(value0: BigInt, value1: BigInt) {
+    this.value0 = value0;
+    this.value1 = value1;
+  }
+
+  toMap(): TypedMap<string, ethereum.Value> {
+    let map = new TypedMap<string, ethereum.Value>();
+    map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
+    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
+    return map;
+  }
+}
+
+export class GToken__calcDepositUnderlyingCostFromSharesResult {
+  value0: BigInt;
+  value1: BigInt;
+
+  constructor(value0: BigInt, value1: BigInt) {
+    this.value0 = value0;
+    this.value1 = value1;
+  }
+
+  toMap(): TypedMap<string, ethereum.Value> {
+    let map = new TypedMap<string, ethereum.Value>();
+    map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
+    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
+    return map;
+  }
+}
+
 export class GToken__calcWithdrawalCostFromSharesResult {
   value0: BigInt;
   value1: BigInt;
@@ -220,6 +254,74 @@ export class GToken__calcWithdrawalCostFromSharesResult {
 }
 
 export class GToken__calcWithdrawalSharesFromCostResult {
+  value0: BigInt;
+  value1: BigInt;
+
+  constructor(value0: BigInt, value1: BigInt) {
+    this.value0 = value0;
+    this.value1 = value1;
+  }
+
+  toMap(): TypedMap<string, ethereum.Value> {
+    let map = new TypedMap<string, ethereum.Value>();
+    map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
+    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
+    return map;
+  }
+}
+
+export class GToken__calcWithdrawalSharesFromUnderlyingCostResult {
+  value0: BigInt;
+  value1: BigInt;
+
+  constructor(value0: BigInt, value1: BigInt) {
+    this.value0 = value0;
+    this.value1 = value1;
+  }
+
+  toMap(): TypedMap<string, ethereum.Value> {
+    let map = new TypedMap<string, ethereum.Value>();
+    map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
+    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
+    return map;
+  }
+}
+
+export class GToken__calcWithdrawalUnderlyingCostFromSharesResult {
+  value0: BigInt;
+  value1: BigInt;
+
+  constructor(value0: BigInt, value1: BigInt) {
+    this.value0 = value0;
+    this.value1 = value1;
+  }
+
+  toMap(): TypedMap<string, ethereum.Value> {
+    let map = new TypedMap<string, ethereum.Value>();
+    map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
+    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
+    return map;
+  }
+}
+
+export class GToken__collateralizationRatioResult {
+  value0: BigInt;
+  value1: BigInt;
+
+  constructor(value0: BigInt, value1: BigInt) {
+    this.value0 = value0;
+    this.value1 = value1;
+  }
+
+  toMap(): TypedMap<string, ethereum.Value> {
+    let map = new TypedMap<string, ethereum.Value>();
+    map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
+    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
+    return map;
+  }
+}
+
+export class GToken__growthGulpRangeResult {
   value0: BigInt;
   value1: BigInt;
 
@@ -481,6 +583,116 @@ export class GToken extends ethereum.SmartContract {
     );
   }
 
+  calcDepositSharesFromUnderlyingCost(
+    _underlyingCost: BigInt,
+    _totalReserve: BigInt,
+    _totalSupply: BigInt,
+    _depositFee: BigInt,
+    _exchangeRate: BigInt
+  ): GToken__calcDepositSharesFromUnderlyingCostResult {
+    let result = super.call(
+      "calcDepositSharesFromUnderlyingCost",
+      "calcDepositSharesFromUnderlyingCost(uint256,uint256,uint256,uint256,uint256):(uint256,uint256)",
+      [
+        ethereum.Value.fromUnsignedBigInt(_underlyingCost),
+        ethereum.Value.fromUnsignedBigInt(_totalReserve),
+        ethereum.Value.fromUnsignedBigInt(_totalSupply),
+        ethereum.Value.fromUnsignedBigInt(_depositFee),
+        ethereum.Value.fromUnsignedBigInt(_exchangeRate)
+      ]
+    );
+
+    return new GToken__calcDepositSharesFromUnderlyingCostResult(
+      result[0].toBigInt(),
+      result[1].toBigInt()
+    );
+  }
+
+  try_calcDepositSharesFromUnderlyingCost(
+    _underlyingCost: BigInt,
+    _totalReserve: BigInt,
+    _totalSupply: BigInt,
+    _depositFee: BigInt,
+    _exchangeRate: BigInt
+  ): ethereum.CallResult<GToken__calcDepositSharesFromUnderlyingCostResult> {
+    let result = super.tryCall(
+      "calcDepositSharesFromUnderlyingCost",
+      "calcDepositSharesFromUnderlyingCost(uint256,uint256,uint256,uint256,uint256):(uint256,uint256)",
+      [
+        ethereum.Value.fromUnsignedBigInt(_underlyingCost),
+        ethereum.Value.fromUnsignedBigInt(_totalReserve),
+        ethereum.Value.fromUnsignedBigInt(_totalSupply),
+        ethereum.Value.fromUnsignedBigInt(_depositFee),
+        ethereum.Value.fromUnsignedBigInt(_exchangeRate)
+      ]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(
+      new GToken__calcDepositSharesFromUnderlyingCostResult(
+        value[0].toBigInt(),
+        value[1].toBigInt()
+      )
+    );
+  }
+
+  calcDepositUnderlyingCostFromShares(
+    _netShares: BigInt,
+    _totalReserve: BigInt,
+    _totalSupply: BigInt,
+    _depositFee: BigInt,
+    _exchangeRate: BigInt
+  ): GToken__calcDepositUnderlyingCostFromSharesResult {
+    let result = super.call(
+      "calcDepositUnderlyingCostFromShares",
+      "calcDepositUnderlyingCostFromShares(uint256,uint256,uint256,uint256,uint256):(uint256,uint256)",
+      [
+        ethereum.Value.fromUnsignedBigInt(_netShares),
+        ethereum.Value.fromUnsignedBigInt(_totalReserve),
+        ethereum.Value.fromUnsignedBigInt(_totalSupply),
+        ethereum.Value.fromUnsignedBigInt(_depositFee),
+        ethereum.Value.fromUnsignedBigInt(_exchangeRate)
+      ]
+    );
+
+    return new GToken__calcDepositUnderlyingCostFromSharesResult(
+      result[0].toBigInt(),
+      result[1].toBigInt()
+    );
+  }
+
+  try_calcDepositUnderlyingCostFromShares(
+    _netShares: BigInt,
+    _totalReserve: BigInt,
+    _totalSupply: BigInt,
+    _depositFee: BigInt,
+    _exchangeRate: BigInt
+  ): ethereum.CallResult<GToken__calcDepositUnderlyingCostFromSharesResult> {
+    let result = super.tryCall(
+      "calcDepositUnderlyingCostFromShares",
+      "calcDepositUnderlyingCostFromShares(uint256,uint256,uint256,uint256,uint256):(uint256,uint256)",
+      [
+        ethereum.Value.fromUnsignedBigInt(_netShares),
+        ethereum.Value.fromUnsignedBigInt(_totalReserve),
+        ethereum.Value.fromUnsignedBigInt(_totalSupply),
+        ethereum.Value.fromUnsignedBigInt(_depositFee),
+        ethereum.Value.fromUnsignedBigInt(_exchangeRate)
+      ]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(
+      new GToken__calcDepositUnderlyingCostFromSharesResult(
+        value[0].toBigInt(),
+        value[1].toBigInt()
+      )
+    );
+  }
+
   calcUnderlyingCostFromCost(_cost: BigInt, _exchangeRate: BigInt): BigInt {
     let result = super.call(
       "calcUnderlyingCostFromCost",
@@ -615,27 +827,147 @@ export class GToken extends ethereum.SmartContract {
     );
   }
 
-  collateralizationRatio(): BigInt {
+  calcWithdrawalSharesFromUnderlyingCost(
+    _underlyingCost: BigInt,
+    _totalReserve: BigInt,
+    _totalSupply: BigInt,
+    _withdrawalFee: BigInt,
+    _exchangeRate: BigInt
+  ): GToken__calcWithdrawalSharesFromUnderlyingCostResult {
+    let result = super.call(
+      "calcWithdrawalSharesFromUnderlyingCost",
+      "calcWithdrawalSharesFromUnderlyingCost(uint256,uint256,uint256,uint256,uint256):(uint256,uint256)",
+      [
+        ethereum.Value.fromUnsignedBigInt(_underlyingCost),
+        ethereum.Value.fromUnsignedBigInt(_totalReserve),
+        ethereum.Value.fromUnsignedBigInt(_totalSupply),
+        ethereum.Value.fromUnsignedBigInt(_withdrawalFee),
+        ethereum.Value.fromUnsignedBigInt(_exchangeRate)
+      ]
+    );
+
+    return new GToken__calcWithdrawalSharesFromUnderlyingCostResult(
+      result[0].toBigInt(),
+      result[1].toBigInt()
+    );
+  }
+
+  try_calcWithdrawalSharesFromUnderlyingCost(
+    _underlyingCost: BigInt,
+    _totalReserve: BigInt,
+    _totalSupply: BigInt,
+    _withdrawalFee: BigInt,
+    _exchangeRate: BigInt
+  ): ethereum.CallResult<GToken__calcWithdrawalSharesFromUnderlyingCostResult> {
+    let result = super.tryCall(
+      "calcWithdrawalSharesFromUnderlyingCost",
+      "calcWithdrawalSharesFromUnderlyingCost(uint256,uint256,uint256,uint256,uint256):(uint256,uint256)",
+      [
+        ethereum.Value.fromUnsignedBigInt(_underlyingCost),
+        ethereum.Value.fromUnsignedBigInt(_totalReserve),
+        ethereum.Value.fromUnsignedBigInt(_totalSupply),
+        ethereum.Value.fromUnsignedBigInt(_withdrawalFee),
+        ethereum.Value.fromUnsignedBigInt(_exchangeRate)
+      ]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(
+      new GToken__calcWithdrawalSharesFromUnderlyingCostResult(
+        value[0].toBigInt(),
+        value[1].toBigInt()
+      )
+    );
+  }
+
+  calcWithdrawalUnderlyingCostFromShares(
+    _grossShares: BigInt,
+    _totalReserve: BigInt,
+    _totalSupply: BigInt,
+    _withdrawalFee: BigInt,
+    _exchangeRate: BigInt
+  ): GToken__calcWithdrawalUnderlyingCostFromSharesResult {
+    let result = super.call(
+      "calcWithdrawalUnderlyingCostFromShares",
+      "calcWithdrawalUnderlyingCostFromShares(uint256,uint256,uint256,uint256,uint256):(uint256,uint256)",
+      [
+        ethereum.Value.fromUnsignedBigInt(_grossShares),
+        ethereum.Value.fromUnsignedBigInt(_totalReserve),
+        ethereum.Value.fromUnsignedBigInt(_totalSupply),
+        ethereum.Value.fromUnsignedBigInt(_withdrawalFee),
+        ethereum.Value.fromUnsignedBigInt(_exchangeRate)
+      ]
+    );
+
+    return new GToken__calcWithdrawalUnderlyingCostFromSharesResult(
+      result[0].toBigInt(),
+      result[1].toBigInt()
+    );
+  }
+
+  try_calcWithdrawalUnderlyingCostFromShares(
+    _grossShares: BigInt,
+    _totalReserve: BigInt,
+    _totalSupply: BigInt,
+    _withdrawalFee: BigInt,
+    _exchangeRate: BigInt
+  ): ethereum.CallResult<GToken__calcWithdrawalUnderlyingCostFromSharesResult> {
+    let result = super.tryCall(
+      "calcWithdrawalUnderlyingCostFromShares",
+      "calcWithdrawalUnderlyingCostFromShares(uint256,uint256,uint256,uint256,uint256):(uint256,uint256)",
+      [
+        ethereum.Value.fromUnsignedBigInt(_grossShares),
+        ethereum.Value.fromUnsignedBigInt(_totalReserve),
+        ethereum.Value.fromUnsignedBigInt(_totalSupply),
+        ethereum.Value.fromUnsignedBigInt(_withdrawalFee),
+        ethereum.Value.fromUnsignedBigInt(_exchangeRate)
+      ]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(
+      new GToken__calcWithdrawalUnderlyingCostFromSharesResult(
+        value[0].toBigInt(),
+        value[1].toBigInt()
+      )
+    );
+  }
+
+  collateralizationRatio(): GToken__collateralizationRatioResult {
     let result = super.call(
       "collateralizationRatio",
-      "collateralizationRatio():(uint256)",
+      "collateralizationRatio():(uint256,uint256)",
       []
     );
 
-    return result[0].toBigInt();
+    return new GToken__collateralizationRatioResult(
+      result[0].toBigInt(),
+      result[1].toBigInt()
+    );
   }
 
-  try_collateralizationRatio(): ethereum.CallResult<BigInt> {
+  try_collateralizationRatio(): ethereum.CallResult<
+    GToken__collateralizationRatioResult
+  > {
     let result = super.tryCall(
       "collateralizationRatio",
-      "collateralizationRatio():(uint256)",
+      "collateralizationRatio():(uint256,uint256)",
       []
     );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
+    return ethereum.CallResult.fromValue(
+      new GToken__collateralizationRatioResult(
+        value[0].toBigInt(),
+        value[1].toBigInt()
+      )
+    );
   }
 
   decimals(): i32 {
@@ -700,6 +1032,21 @@ export class GToken extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
+  exchange(): Address {
+    let result = super.call("exchange", "exchange():(address)", []);
+
+    return result[0].toAddress();
+  }
+
+  try_exchange(): ethereum.CallResult<Address> {
+    let result = super.tryCall("exchange", "exchange():(address)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
+
   exchangeRate(): BigInt {
     let result = super.call("exchangeRate", "exchangeRate():(uint256)", []);
 
@@ -713,6 +1060,52 @@ export class GToken extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  growthGulpRange(): GToken__growthGulpRangeResult {
+    let result = super.call(
+      "growthGulpRange",
+      "growthGulpRange():(uint256,uint256)",
+      []
+    );
+
+    return new GToken__growthGulpRangeResult(
+      result[0].toBigInt(),
+      result[1].toBigInt()
+    );
+  }
+
+  try_growthGulpRange(): ethereum.CallResult<GToken__growthGulpRangeResult> {
+    let result = super.tryCall(
+      "growthGulpRange",
+      "growthGulpRange():(uint256,uint256)",
+      []
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(
+      new GToken__growthGulpRangeResult(
+        value[0].toBigInt(),
+        value[1].toBigInt()
+      )
+    );
+  }
+
+  growthToken(): Address {
+    let result = super.call("growthToken", "growthToken():(address)", []);
+
+    return result[0].toAddress();
+  }
+
+  try_growthToken(): ethereum.CallResult<Address> {
+    let result = super.tryCall("growthToken", "growthToken():(address)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
   increaseAllowance(spender: Address, addedValue: BigInt): boolean {
@@ -881,25 +1274,6 @@ export class GToken extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
-  miningExchange(): Address {
-    let result = super.call("miningExchange", "miningExchange():(address)", []);
-
-    return result[0].toAddress();
-  }
-
-  try_miningExchange(): ethereum.CallResult<Address> {
-    let result = super.tryCall(
-      "miningExchange",
-      "miningExchange():(address)",
-      []
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toAddress());
-  }
-
   miningGulpRange(): GToken__miningGulpRangeResult {
     let result = super.call(
       "miningGulpRange",
@@ -929,6 +1303,21 @@ export class GToken extends ethereum.SmartContract {
         value[1].toBigInt()
       )
     );
+  }
+
+  miningToken(): Address {
+    let result = super.call("miningToken", "miningToken():(address)", []);
+
+    return result[0].toAddress();
+  }
+
+  try_miningToken(): ethereum.CallResult<Address> {
+    let result = super.tryCall("miningToken", "miningToken():(address)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
   name(): string {
@@ -1639,12 +2028,80 @@ export class SetCollateralizationRatioCall__Inputs {
   get _collateralizationRatio(): BigInt {
     return this._call.inputValues[0].value.toBigInt();
   }
+
+  get _collateralizationMargin(): BigInt {
+    return this._call.inputValues[1].value.toBigInt();
+  }
 }
 
 export class SetCollateralizationRatioCall__Outputs {
   _call: SetCollateralizationRatioCall;
 
   constructor(call: SetCollateralizationRatioCall) {
+    this._call = call;
+  }
+}
+
+export class SetExchangeCall extends ethereum.Call {
+  get inputs(): SetExchangeCall__Inputs {
+    return new SetExchangeCall__Inputs(this);
+  }
+
+  get outputs(): SetExchangeCall__Outputs {
+    return new SetExchangeCall__Outputs(this);
+  }
+}
+
+export class SetExchangeCall__Inputs {
+  _call: SetExchangeCall;
+
+  constructor(call: SetExchangeCall) {
+    this._call = call;
+  }
+
+  get _exchange(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+}
+
+export class SetExchangeCall__Outputs {
+  _call: SetExchangeCall;
+
+  constructor(call: SetExchangeCall) {
+    this._call = call;
+  }
+}
+
+export class SetGrowthGulpRangeCall extends ethereum.Call {
+  get inputs(): SetGrowthGulpRangeCall__Inputs {
+    return new SetGrowthGulpRangeCall__Inputs(this);
+  }
+
+  get outputs(): SetGrowthGulpRangeCall__Outputs {
+    return new SetGrowthGulpRangeCall__Outputs(this);
+  }
+}
+
+export class SetGrowthGulpRangeCall__Inputs {
+  _call: SetGrowthGulpRangeCall;
+
+  constructor(call: SetGrowthGulpRangeCall) {
+    this._call = call;
+  }
+
+  get _growthMinGulpAmount(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+
+  get _growthMaxGulpAmount(): BigInt {
+    return this._call.inputValues[1].value.toBigInt();
+  }
+}
+
+export class SetGrowthGulpRangeCall__Outputs {
+  _call: SetGrowthGulpRangeCall;
+
+  constructor(call: SetGrowthGulpRangeCall) {
     this._call = call;
   }
 }
@@ -1675,36 +2132,6 @@ export class SetLiquidityPoolBurningRateCall__Outputs {
   _call: SetLiquidityPoolBurningRateCall;
 
   constructor(call: SetLiquidityPoolBurningRateCall) {
-    this._call = call;
-  }
-}
-
-export class SetMiningExchangeCall extends ethereum.Call {
-  get inputs(): SetMiningExchangeCall__Inputs {
-    return new SetMiningExchangeCall__Inputs(this);
-  }
-
-  get outputs(): SetMiningExchangeCall__Outputs {
-    return new SetMiningExchangeCall__Outputs(this);
-  }
-}
-
-export class SetMiningExchangeCall__Inputs {
-  _call: SetMiningExchangeCall;
-
-  constructor(call: SetMiningExchangeCall) {
-    this._call = call;
-  }
-
-  get _miningExchange(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-}
-
-export class SetMiningExchangeCall__Outputs {
-  _call: SetMiningExchangeCall;
-
-  constructor(call: SetMiningExchangeCall) {
     this._call = call;
   }
 }

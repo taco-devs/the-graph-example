@@ -17,6 +17,25 @@ type User @entity {
 
 type Token @entity {
   id: ID!
-  name: String
-  symbol: String
+  name: String!
+  symbol: String!
+  miningToken: Bytes!
+  reserveToken: Bytes!
+  stakesToken: Bytes!
+  underlyingToken: Bytes!
+}
+
+type TokenDailyData @entity {
+  id: ID!
+  date: Int!
+
+  avgPrice: BigDecimal!
+
+  mintTotalSent: BigInt!
+  mintTotalReceived: BigInt!
+  
+  redeemTotalSent: BigInt!
+  redeemTotalReceived: BigInt!
+
+  txCount: BigInt!
 }

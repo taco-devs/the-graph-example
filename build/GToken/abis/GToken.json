@@ -354,6 +354,94 @@
     "inputs": [
       {
         "internalType": "uint256",
+        "name": "_underlyingCost",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_totalReserve",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_totalSupply",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_depositFee",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_exchangeRate",
+        "type": "uint256"
+      }
+    ],
+    "name": "calcDepositSharesFromUnderlyingCost",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "_netShares",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_feeShares",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_netShares",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_totalReserve",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_totalSupply",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_depositFee",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_exchangeRate",
+        "type": "uint256"
+      }
+    ],
+    "name": "calcDepositUnderlyingCostFromShares",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "_underlyingCost",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_feeShares",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
         "name": "_cost",
         "type": "uint256"
       },
@@ -455,6 +543,94 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "_underlyingCost",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_totalReserve",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_totalSupply",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_withdrawalFee",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_exchangeRate",
+        "type": "uint256"
+      }
+    ],
+    "name": "calcWithdrawalSharesFromUnderlyingCost",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "_grossShares",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_feeShares",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_grossShares",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_totalReserve",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_totalSupply",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_withdrawalFee",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_exchangeRate",
+        "type": "uint256"
+      }
+    ],
+    "name": "calcWithdrawalUnderlyingCostFromShares",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "_underlyingCost",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_feeShares",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "_sender",
         "type": "address"
@@ -501,6 +677,11 @@
       {
         "internalType": "uint256",
         "name": "_collateralizationRatio",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_collateralizationMargin",
         "type": "uint256"
       }
     ],
@@ -592,6 +773,19 @@
   },
   {
     "inputs": [],
+    "name": "exchange",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "_exchange",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "exchangeRate",
     "outputs": [
       {
@@ -629,6 +823,37 @@
     "name": "executeOperation",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "growthGulpRange",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "_growthMinGulpAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_growthMaxGulpAmount",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "growthToken",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -748,19 +973,6 @@
   },
   {
     "inputs": [],
-    "name": "miningExchange",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "_miningExchange",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "miningGulpRange",
     "outputs": [
       {
@@ -772,6 +984,19 @@
         "internalType": "uint256",
         "name": "_miningMaxGulpAmount",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "miningToken",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -829,9 +1054,45 @@
         "internalType": "uint256",
         "name": "_collateralizationRatio",
         "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_collateralizationMargin",
+        "type": "uint256"
       }
     ],
     "name": "setCollateralizationRatio",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_exchange",
+        "type": "address"
+      }
+    ],
+    "name": "setExchange",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_growthMinGulpAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_growthMaxGulpAmount",
+        "type": "uint256"
+      }
+    ],
+    "name": "setGrowthGulpRange",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -845,19 +1106,6 @@
       }
     ],
     "name": "setLiquidityPoolBurningRate",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_miningExchange",
-        "type": "address"
-      }
-    ],
-    "name": "setMiningExchange",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

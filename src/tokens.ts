@@ -1,4 +1,4 @@
-import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts"
+import { Address, BigInt, ethereum, log } from "@graphprotocol/graph-ts"
 import {
   GToken,
   Approval,
@@ -12,13 +12,46 @@ import {
   DepositUnderlyingCall,
   WithdrawCall,
   WithdrawUnderlyingCall
-} from "../generated/GToken/GToken"
+} from "../generated/templates/GToken/GToken"
 
 import { 
   Token,
   Transaction,
-  User
+  User,
+  TokenDailyData
 } from '../generated/schema';
+
+import {
+  updateDailyData
+} from './priceAggregators';
+
+import { ONE_BI, ZERO_BD, ZERO_BI } from './helpers'
+
+// TokenManager
+function getToken(address: Address): Token {
+
+  // Get the User
+  let token = Token.load(address.toHex());
+
+  if (token == null) {
+
+    let token_contract = GToken.bind(address);
+
+    token = new Token(address.toHex());
+
+    token.name = token_contract.name();
+    token.symbol = token_contract.symbol();
+    token.miningToken = token_contract.miningToken();
+    token.reserveToken = token_contract.reserveToken();
+    token.stakesToken = token_contract.stakesToken()
+    token.underlyingToken = token_contract.underlyingToken();
+  
+  }
+
+  token.save();
+
+  return token as Token;
+}
 
 // Aggregates the number of transactions done to the server
 function transactionAggregator(address: Address): void {
@@ -138,44 +171,47 @@ export function handleTransfer(event: TransferEvent): void {};
 // Deposit
 export function handleDeposit(call: DepositCall): void {
 
-  // Handle transaction aggregation
-  transactionAggregator(call.from);
+    let token = getToken(call.to);
 
+    // Create a Mint entity
+    let mint = Transaction.load(call.transaction.hash.toHex());
 
-  // Create a Mint entity
-  let mint = Transaction.load(call.transaction.hash.toHex());
-
-  // If there isn't a mint object create a new one
-  if (mint == null) {
+    // If there isn't a mint object create a new one
+    if (mint == null) {
     mint = new Transaction(call.transaction.hash.toHex());
-  }
+    }
 
-  // Instantiate the GToken Contract
-  let token_contract = GToken.bind(call.to);
+    // Instantiate the GToken Contract
+    let token_contract = GToken.bind(call.to);
 
-  // To be used for amount received
-  let totalReserve = token_contract.totalReserve();
-  let totalSupply = token_contract.totalSupply();
-  let depositFee = token_contract.depositFee();
+    // To be used for amount received
+    let totalReserve = token_contract.totalReserve();
+    let totalSupply = token_contract.totalSupply();
+    let depositFee = token_contract.depositFee();
 
-  // Calculate the amount received
-  let received = token_contract.calcDepositSharesFromCost(call.inputs._cost, totalReserve, totalSupply, depositFee);
+    // Calculate the amount received
+    let received = token_contract.calcDepositSharesFromCost(call.inputs._cost, totalReserve, totalSupply, depositFee);
 
-  mint.from = call.from;
-  mint.action = 'mint';
-  mint.type = 'base';
-  mint.sent = call.inputs._cost;
-  mint.received = received.value0;
-  mint.fee = received.value1;
-  mint.block = call.block.number;
+    mint.from = call.from;
+    mint.action = 'mint';
+    mint.type = 'base';
+    mint.sent = call.inputs._cost;
+    mint.received = received.value0;
+    mint.fee = received.value1;
+    mint.block = call.block.number;
 
-  mint.save();
+    mint.save();
+
+    // Handle transaction aggregation
+    transactionAggregator(call.from);
+    updateDailyData(call, call.inputs._cost, received.value0, ZERO_BI, ZERO_BI);
 }
 
 // Deposit Underlying
 export function handleDepositUnderlying(call: DepositUnderlyingCall): void {
 
   // Handle transaction aggregation
+  let token = getToken(call.to);
   transactionAggregator(call.from);
 
   // Create a Mint entity
@@ -208,12 +244,15 @@ export function handleDepositUnderlying(call: DepositUnderlyingCall): void {
   mint.block = call.block.number;
 
   mint.save();
+
+  updateDailyData(call, underlyingConversion, received.value0, ZERO_BI, ZERO_BI);
 }
 
 // Withdraw
 export function handleWithdraw(call: WithdrawCall): void {
 
   // Handle transaction aggregation
+  let token = getToken(call.to);
   transactionAggregator(call.from);
 
 
@@ -245,12 +284,14 @@ export function handleWithdraw(call: WithdrawCall): void {
   redeem.block = call.block.number;
 
   redeem.save();
+  updateDailyData(call, ZERO_BI, ZERO_BI, call.inputs._grossShares, received.value0);
 }
 
 // Withdraw
 export function handleWithdrawUnderlying(call: WithdrawUnderlyingCall): void {
 
   // Handle transaction aggregation
+  let token = getToken(call.to);
   transactionAggregator(call.from);
 
   // Create a Mint entity
@@ -283,4 +324,6 @@ export function handleWithdrawUnderlying(call: WithdrawUnderlyingCall): void {
   redeem.block = call.block.number;
 
   redeem.save();
+
+  updateDailyData(call, ZERO_BI, ZERO_BI, call.inputs._grossShares, _cost.value0);
 }

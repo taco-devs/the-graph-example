@@ -225,37 +225,151 @@ export class Token extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get name(): string | null {
+  get name(): string {
     let value = this.get("name");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toString();
-    }
+    return value.toString();
   }
 
-  set name(value: string | null) {
-    if (value === null) {
-      this.unset("name");
-    } else {
-      this.set("name", Value.fromString(value as string));
-    }
+  set name(value: string) {
+    this.set("name", Value.fromString(value));
   }
 
-  get symbol(): string | null {
+  get symbol(): string {
     let value = this.get("symbol");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toString();
-    }
+    return value.toString();
   }
 
-  set symbol(value: string | null) {
-    if (value === null) {
-      this.unset("symbol");
-    } else {
-      this.set("symbol", Value.fromString(value as string));
-    }
+  set symbol(value: string) {
+    this.set("symbol", Value.fromString(value));
+  }
+
+  get miningToken(): Bytes {
+    let value = this.get("miningToken");
+    return value.toBytes();
+  }
+
+  set miningToken(value: Bytes) {
+    this.set("miningToken", Value.fromBytes(value));
+  }
+
+  get reserveToken(): Bytes {
+    let value = this.get("reserveToken");
+    return value.toBytes();
+  }
+
+  set reserveToken(value: Bytes) {
+    this.set("reserveToken", Value.fromBytes(value));
+  }
+
+  get stakesToken(): Bytes {
+    let value = this.get("stakesToken");
+    return value.toBytes();
+  }
+
+  set stakesToken(value: Bytes) {
+    this.set("stakesToken", Value.fromBytes(value));
+  }
+
+  get underlyingToken(): Bytes {
+    let value = this.get("underlyingToken");
+    return value.toBytes();
+  }
+
+  set underlyingToken(value: Bytes) {
+    this.set("underlyingToken", Value.fromBytes(value));
+  }
+}
+
+export class TokenDailyData extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save TokenDailyData entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save TokenDailyData entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("TokenDailyData", id.toString(), this);
+  }
+
+  static load(id: string): TokenDailyData | null {
+    return store.get("TokenDailyData", id) as TokenDailyData | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get date(): i32 {
+    let value = this.get("date");
+    return value.toI32();
+  }
+
+  set date(value: i32) {
+    this.set("date", Value.fromI32(value));
+  }
+
+  get avgPrice(): BigDecimal {
+    let value = this.get("avgPrice");
+    return value.toBigDecimal();
+  }
+
+  set avgPrice(value: BigDecimal) {
+    this.set("avgPrice", Value.fromBigDecimal(value));
+  }
+
+  get mintTotalSent(): BigInt {
+    let value = this.get("mintTotalSent");
+    return value.toBigInt();
+  }
+
+  set mintTotalSent(value: BigInt) {
+    this.set("mintTotalSent", Value.fromBigInt(value));
+  }
+
+  get mintTotalReceived(): BigInt {
+    let value = this.get("mintTotalReceived");
+    return value.toBigInt();
+  }
+
+  set mintTotalReceived(value: BigInt) {
+    this.set("mintTotalReceived", Value.fromBigInt(value));
+  }
+
+  get redeemTotalSent(): BigInt {
+    let value = this.get("redeemTotalSent");
+    return value.toBigInt();
+  }
+
+  set redeemTotalSent(value: BigInt) {
+    this.set("redeemTotalSent", Value.fromBigInt(value));
+  }
+
+  get redeemTotalReceived(): BigInt {
+    let value = this.get("redeemTotalReceived");
+    return value.toBigInt();
+  }
+
+  set redeemTotalReceived(value: BigInt) {
+    this.set("redeemTotalReceived", Value.fromBigInt(value));
+  }
+
+  get txCount(): BigInt {
+    let value = this.get("txCount");
+    return value.toBigInt();
+  }
+
+  set txCount(value: BigInt) {
+    this.set("txCount", Value.fromBigInt(value));
   }
 }
