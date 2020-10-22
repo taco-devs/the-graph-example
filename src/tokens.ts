@@ -54,6 +54,9 @@ function getToken(address: Address): Token {
 
   // Update the total supply after each transaction
   token.totalSupply = token_contract.totalSupply();
+  token.totalReserve = token_contract.totalReserve();
+  token.depositFee = token_contract.depositFee();
+  token.withdrawalFee = token_contract.withdrawalFee();
 
   token.save();
 

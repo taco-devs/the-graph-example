@@ -354,6 +354,33 @@ export class Token extends Entity {
   set totalSupply(value: BigInt) {
     this.set("totalSupply", Value.fromBigInt(value));
   }
+
+  get totalReserve(): BigInt {
+    let value = this.get("totalReserve");
+    return value.toBigInt();
+  }
+
+  set totalReserve(value: BigInt) {
+    this.set("totalReserve", Value.fromBigInt(value));
+  }
+
+  get depositFee(): BigInt {
+    let value = this.get("depositFee");
+    return value.toBigInt();
+  }
+
+  set depositFee(value: BigInt) {
+    this.set("depositFee", Value.fromBigInt(value));
+  }
+
+  get withdrawalFee(): BigInt {
+    let value = this.get("withdrawalFee");
+    return value.toBigInt();
+  }
+
+  set withdrawalFee(value: BigInt) {
+    this.set("withdrawalFee", Value.fromBigInt(value));
+  }
 }
 
 export class TokenDailyData extends Entity {

@@ -33,6 +33,9 @@ type Token @entity {
   underlyingToken: Bytes!
 
   totalSupply: BigInt!
+  totalReserve: BigInt!
+  depositFee: BigInt!
+  withdrawalFee: BigInt!
 }
 
 type TokenDailyData @entity {
