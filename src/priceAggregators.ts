@@ -2,13 +2,13 @@ import { Token, TokenDailyData } from './../generated/schema';
 import { BigDecimal, BigInt, ethereum } from '@graphprotocol/graph-ts';
 import { ONE_BI, ZERO_BD, ZERO_BI } from './helpers'
 
-export function updateDailyData(call: ethereum.Call, mintCost: BigInt, mintReceived: BigInt, redeemCost: BigInt, redeemReceived: BigInt): void {
+export function updateDailyData(call: ethereum.Call, token: Token, mintCost: BigInt, mintReceived: BigInt, redeemCost: BigInt, redeemReceived: BigInt): void {
     
     let timestamp = call.block.timestamp.toI32();
     let dayID = timestamp / 86400
     let dayStartTimestamp = dayID * 86400
 
-    let tokenDailyDataID = 'GCDAI'
+    let tokenDailyDataID = token.symbol
         .concat('_')
         .concat(BigInt.fromI32(dayID).toString());
 
@@ -25,6 +25,7 @@ export function updateDailyData(call: ethereum.Call, mintCost: BigInt, mintRecei
         tokenDailyData.redeemTotalReceived = ZERO_BI;
     }   
 
+    tokenDailyData.token = token.id;
     tokenDailyData.mintTotalSent = tokenDailyData.mintTotalSent.plus(mintCost);
     tokenDailyData.mintTotalReceived = tokenDailyData.mintTotalReceived.plus(mintReceived);
     tokenDailyData.redeemTotalSent = tokenDailyData.redeemTotalSent.plus(redeemCost);

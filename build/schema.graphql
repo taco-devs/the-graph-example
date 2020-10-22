@@ -7,12 +7,20 @@ type Transaction @entity {
   received: BigInt
   fee: BigInt
   block: BigInt
+  token: Token!
 }
 
 type User @entity {
   id: ID!
   address: Bytes!
   transactions: BigInt
+}
+
+type UserBalance @entity {
+  id: ID!
+  user: User!
+  token: Token!
+  amount: BigInt!
 }
 
 type Token @entity {
@@ -28,6 +36,7 @@ type Token @entity {
 type TokenDailyData @entity {
   id: ID!
   date: Int!
+  token: Token!
 
   avgPrice: BigDecimal!
 

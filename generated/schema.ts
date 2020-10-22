@@ -136,6 +136,15 @@ export class Transaction extends Entity {
       this.set("block", Value.fromBigInt(value as BigInt));
     }
   }
+
+  get token(): string {
+    let value = this.get("token");
+    return value.toString();
+  }
+
+  set token(value: string) {
+    this.set("token", Value.fromString(value));
+  }
 }
 
 export class User extends Entity {
@@ -192,6 +201,64 @@ export class User extends Entity {
     } else {
       this.set("transactions", Value.fromBigInt(value as BigInt));
     }
+  }
+}
+
+export class UserBalance extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save UserBalance entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save UserBalance entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("UserBalance", id.toString(), this);
+  }
+
+  static load(id: string): UserBalance | null {
+    return store.get("UserBalance", id) as UserBalance | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get user(): string {
+    let value = this.get("user");
+    return value.toString();
+  }
+
+  set user(value: string) {
+    this.set("user", Value.fromString(value));
+  }
+
+  get token(): string {
+    let value = this.get("token");
+    return value.toString();
+  }
+
+  set token(value: string) {
+    this.set("token", Value.fromString(value));
+  }
+
+  get amount(): BigInt {
+    let value = this.get("amount");
+    return value.toBigInt();
+  }
+
+  set amount(value: BigInt) {
+    this.set("amount", Value.fromBigInt(value));
   }
 }
 
@@ -317,6 +384,15 @@ export class TokenDailyData extends Entity {
 
   set date(value: i32) {
     this.set("date", Value.fromI32(value));
+  }
+
+  get token(): string {
+    let value = this.get("token");
+    return value.toString();
+  }
+
+  set token(value: string) {
+    this.set("token", Value.fromString(value));
   }
 
   get avgPrice(): BigDecimal {

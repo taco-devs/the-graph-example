@@ -18,6 +18,7 @@ import {
   Token,
   Transaction,
   User,
+  UserBalance,
   TokenDailyData
 } from '../generated/schema';
 
@@ -26,6 +27,10 @@ import {
 } from './priceAggregators';
 
 import { ONE_BI, ZERO_BD, ZERO_BI } from './helpers'
+
+// Constant types
+const MINT = 'MINT';
+const REDEEM = 'REDEEM';
 
 // TokenManager
 function getToken(address: Address): Token {
@@ -54,7 +59,7 @@ function getToken(address: Address): Token {
 }
 
 // Aggregates the number of transactions done to the server
-function transactionAggregator(address: Address): void {
+function transactionAggregator(address: Address, token: Token, amount: BigInt, type: String ): void {
   // Get the User
   let user = User.load(address.toHex());
 
@@ -62,12 +67,37 @@ function transactionAggregator(address: Address): void {
   if (user == null) {
     user = new User(address.toHex());
     user.address = address;
-    user.transactions = BigInt.fromI32(0);
+    user.transactions = ZERO_BI;
   }
 
   // Add a new transaction to the user
-  user.transactions = user.transactions + BigInt.fromI32(1);
+  user.transactions = user.transactions + ONE_BI;
+
+  // Add the transaction to the balances 
+  let user_balance_id = token.symbol
+    .concat('_')
+    .concat(user.id);
+
+  let user_balance = UserBalance.load(user_balance_id);
+
+  if (user_balance == null) {
+      user_balance = new UserBalance(user_balance_id);
+      user_balance.token = token.id;
+      user_balance.user = user.id;
+      user_balance.amount = ZERO_BI;
+  } 
+
+  // Update the user balance
+  if (type === MINT) {
+        user_balance.amount = user_balance.amount + amount;
+  }
+
+  if (type === REDEEM) {
+        user_balance.amount = user_balance.amount - amount;
+  }
+
   user.save();
+  user_balance.save();
 }
 
 
@@ -199,12 +229,13 @@ export function handleDeposit(call: DepositCall): void {
     mint.received = received.value0;
     mint.fee = received.value1;
     mint.block = call.block.number;
+    mint.token = token.id;
 
     mint.save();
 
     // Handle transaction aggregation
-    transactionAggregator(call.from);
-    updateDailyData(call, call.inputs._cost, received.value0, ZERO_BI, ZERO_BI);
+    transactionAggregator(call.from, token, received.value0, MINT);
+    updateDailyData(call, token, call.inputs._cost, received.value0, ZERO_BI, ZERO_BI);
 }
 
 // Deposit Underlying
@@ -212,7 +243,6 @@ export function handleDepositUnderlying(call: DepositUnderlyingCall): void {
 
   // Handle transaction aggregation
   let token = getToken(call.to);
-  transactionAggregator(call.from);
 
   // Create a Mint entity
   let mint = Transaction.load(call.transaction.hash.toHex());
@@ -242,10 +272,12 @@ export function handleDepositUnderlying(call: DepositUnderlyingCall): void {
   mint.received = received.value0;
   mint.fee = received.value1;
   mint.block = call.block.number;
+  mint.token = token.id;
 
   mint.save();
 
-  updateDailyData(call, underlyingConversion, received.value0, ZERO_BI, ZERO_BI);
+  transactionAggregator(call.from, token, received.value0, MINT);
+  updateDailyData(call, token, underlyingConversion, received.value0, ZERO_BI, ZERO_BI);
 }
 
 // Withdraw
@@ -253,8 +285,6 @@ export function handleWithdraw(call: WithdrawCall): void {
 
   // Handle transaction aggregation
   let token = getToken(call.to);
-  transactionAggregator(call.from);
-
 
   // Create a Mint entity
   let redeem = Transaction.load(call.transaction.hash.toHex());
@@ -282,9 +312,12 @@ export function handleWithdraw(call: WithdrawCall): void {
   redeem.received = received.value0;
   redeem.fee = received.value1;
   redeem.block = call.block.number;
+  redeem.token = token.id;
 
   redeem.save();
-  updateDailyData(call, ZERO_BI, ZERO_BI, call.inputs._grossShares, received.value0);
+
+  transactionAggregator(call.from, token, received.value0, REDEEM);
+  updateDailyData(call, token, ZERO_BI, ZERO_BI, call.inputs._grossShares, received.value0);
 }
 
 // Withdraw
@@ -292,7 +325,6 @@ export function handleWithdrawUnderlying(call: WithdrawUnderlyingCall): void {
 
   // Handle transaction aggregation
   let token = getToken(call.to);
-  transactionAggregator(call.from);
 
   // Create a Mint entity
   let redeem = Transaction.load(call.transaction.hash.toHex());
@@ -322,8 +354,10 @@ export function handleWithdrawUnderlying(call: WithdrawUnderlyingCall): void {
   redeem.received = received;
   redeem.fee = _cost.value1;
   redeem.block = call.block.number;
+  redeem.token = token.id;
 
   redeem.save();
 
-  updateDailyData(call, ZERO_BI, ZERO_BI, call.inputs._grossShares, _cost.value0);
+  transactionAggregator(call.from, token, received, REDEEM);
+  updateDailyData(call, token, ZERO_BI, ZERO_BI, call.inputs._grossShares, _cost.value0);
 }
