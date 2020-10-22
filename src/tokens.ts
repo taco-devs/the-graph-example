@@ -38,10 +38,9 @@ function getToken(address: Address): Token {
   // Get the User
   let token = Token.load(address.toHex());
 
+  let token_contract = GToken.bind(address);
+
   if (token == null) {
-
-    let token_contract = GToken.bind(address);
-
     token = new Token(address.toHex());
 
     token.name = token_contract.name();
@@ -50,8 +49,11 @@ function getToken(address: Address): Token {
     token.reserveToken = token_contract.reserveToken();
     token.stakesToken = token_contract.stakesToken()
     token.underlyingToken = token_contract.underlyingToken();
-  
+    token.totalSupply = ZERO_BI;
   }
+
+  // Update the total supply after each transaction
+  token.totalSupply = token_contract.totalSupply();
 
   token.save();
 
@@ -60,6 +62,7 @@ function getToken(address: Address): Token {
 
 // Aggregates the number of transactions done to the server
 function transactionAggregator(address: Address, token: Token, amount: BigInt, type: String ): void {
+
   // Get the User
   let user = User.load(address.toHex());
 
@@ -316,7 +319,7 @@ export function handleWithdraw(call: WithdrawCall): void {
 
   redeem.save();
 
-  transactionAggregator(call.from, token, received.value0, REDEEM);
+  transactionAggregator(call.from, token, call.inputs._grossShares, REDEEM);
   updateDailyData(call, token, ZERO_BI, ZERO_BI, call.inputs._grossShares, received.value0);
 }
 
@@ -358,6 +361,6 @@ export function handleWithdrawUnderlying(call: WithdrawUnderlyingCall): void {
 
   redeem.save();
 
-  transactionAggregator(call.from, token, received, REDEEM);
+  transactionAggregator(call.from, token, call.inputs._grossShares, REDEEM);
   updateDailyData(call, token, ZERO_BI, ZERO_BI, call.inputs._grossShares, _cost.value0);
 }

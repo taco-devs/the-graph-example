@@ -345,6 +345,15 @@ export class Token extends Entity {
   set underlyingToken(value: Bytes) {
     this.set("underlyingToken", Value.fromBytes(value));
   }
+
+  get totalSupply(): BigInt {
+    let value = this.get("totalSupply");
+    return value.toBigInt();
+  }
+
+  set totalSupply(value: BigInt) {
+    this.set("totalSupply", Value.fromBigInt(value));
+  }
 }
 
 export class TokenDailyData extends Entity {

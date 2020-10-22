@@ -31,6 +31,8 @@ type Token @entity {
   reserveToken: Bytes!
   stakesToken: Bytes!
   underlyingToken: Bytes!
+
+  totalSupply: BigInt!
 }
 
 type TokenDailyData @entity {
