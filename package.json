@@ -4,13 +4,17 @@
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ irvollo/growth-defi-kovan",
+    "prepare:kovan": "mustache config/kovan.json subgraph.template.yaml > subgraph.yaml",
+    "prepare:mainnet": "mustache config/mainnet.json subgraph.template.yaml > subgraph.yaml",
+    "deploy:kovan": "npm run prepare:kovan && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ irvollo/growth-defi-kovan",
+    "deploy:mainnet": "npm run prepare:mainnet && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ irvollo/growth-defi",
     "create-local": "graph create --node http://localhost:8020/ irvollo/growth-defi-kovan",
     "remove-local": "graph remove --node http://localhost:8020/ irvollo/growth-defi-kovan",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 irvollo/growth-defi-kovan"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.18.0",
-    "@graphprotocol/graph-ts": "0.18.0"
+    "@graphprotocol/graph-ts": "0.18.0",
+    "mustache": "^4.0.1"
   }
 }

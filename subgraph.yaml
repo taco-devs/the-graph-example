@@ -4,11 +4,11 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: TokenRegistry
-    network: kovan
+    network: mainnet
     source:
-      address: "0xCD17f51C6C3f6b6FA6ad75f77be3C708278c723A"
+      address: '0xE468bb6Dca05521E6a6270CC9E40276F7a79F999'
       abi: TokenRegistry
-      startBlock: 21647320
+      startBlock: 11108820
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -25,7 +25,7 @@ dataSources:
 templates:
   - kind: ethereum/contract
     name: GToken
-    network: kovan
+    network: mainnet
     source:
       abi: GToken
     mapping:
@@ -39,6 +39,8 @@ templates:
       abis:
         - name: GToken
           file: ./abis/GToken.json
+        - name: CToken
+          file: ./abis/CToken.json
       callHandlers:
         - function: deposit(uint256)
           handler: handleDeposit

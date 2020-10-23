@@ -1,31 +1,31 @@
 specVersion: 0.0.2
 schema:
-  file: schema.graphql
+  file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
     name: TokenRegistry
-    network: mainnet
+    network: {{network}}
     source:
-      address: "0xE468bb6Dca05521E6a6270CC9E40276F7a79F999"
+      address: '{{address}}'
       abi: TokenRegistry
-      startBlock: 11108820
+      startBlock: {{startBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      entities:
+      entities: 
         - Directory
       abis:
         - name: TokenRegistry
-          file: TokenRegistry/abis/TokenRegistry.json
+          file: ./abis/TokenRegistry.json
       eventHandlers:
         - event: NewToken(indexed address)
           handler: handleNewToken
-      file: TokenRegistry/TokenRegistry.wasm
+      file: ./src/core.ts
 templates:
   - kind: ethereum/contract
     name: GToken
-    network: mainnet
+    network: {{network}}
     source:
       abi: GToken
     mapping:
@@ -38,9 +38,9 @@ templates:
         - User
       abis:
         - name: GToken
-          file: GToken/abis/GToken.json
+          file: ./abis/GToken.json
         - name: CToken
-          file: GToken/abis/CToken.json
+          file: ./abis/CToken.json
       callHandlers:
         - function: deposit(uint256)
           handler: handleDeposit
@@ -65,4 +65,4 @@ templates:
           handler: handleOwnershipTransferred
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
-      file: templates/GToken/GToken.wasm
+      file: ./src/tokens.ts
