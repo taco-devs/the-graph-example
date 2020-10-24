@@ -27,6 +27,7 @@ type Token @entity {
   id: ID!
   name: String!
   symbol: String!
+  decimals: Int!
   miningToken: Bytes!
   reserveToken: Bytes!
   stakesToken: Bytes!
@@ -44,12 +45,27 @@ type TokenDailyData @entity {
   token: Token!
 
   avgPrice: BigDecimal!
+  currentPrice: BigDecimal!
+  currentEthPrice: BigDecimal!
 
   mintTotalSent: BigInt!
   mintTotalReceived: BigInt!
   
   redeemTotalSent: BigInt!
   redeemTotalReceived: BigInt!
+
+  txCount: BigInt!
+}
+
+type DailyData @entity {
+  id: ID!
+  date: Int!
+  
+  cumulativeUSDvolume: BigDecimal!
+  cumulativeETHVolume: BigDecimal!
+
+  totalValueLockedUSD: BigDecimal!
+  totalValueLockedETH: BigDecimal!
 
   txCount: BigInt!
 }

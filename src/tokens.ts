@@ -45,6 +45,7 @@ function getToken(address: Address): Token {
 
     token.name = token_contract.name();
     token.symbol = token_contract.symbol();
+    token.decimals = token_contract.decimals();
     token.miningToken = token_contract.miningToken();
     token.reserveToken = token_contract.reserveToken();
     token.stakesToken = token_contract.stakesToken()
@@ -206,6 +207,8 @@ export function handleTransfer(event: TransferEvent): void {};
 
 // Deposit
 export function handleDeposit(call: DepositCall): void {
+
+    log.debug(`Trying to fetch ${call.block.number}`, []);
 
     let token = getToken(call.to);
 

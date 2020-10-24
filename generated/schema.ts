@@ -310,6 +310,15 @@ export class Token extends Entity {
     this.set("symbol", Value.fromString(value));
   }
 
+  get decimals(): i32 {
+    let value = this.get("decimals");
+    return value.toI32();
+  }
+
+  set decimals(value: i32) {
+    this.set("decimals", Value.fromI32(value));
+  }
+
   get miningToken(): Bytes {
     let value = this.get("miningToken");
     return value.toBytes();
@@ -440,6 +449,24 @@ export class TokenDailyData extends Entity {
     this.set("avgPrice", Value.fromBigDecimal(value));
   }
 
+  get currentPrice(): BigDecimal {
+    let value = this.get("currentPrice");
+    return value.toBigDecimal();
+  }
+
+  set currentPrice(value: BigDecimal) {
+    this.set("currentPrice", Value.fromBigDecimal(value));
+  }
+
+  get currentEthPrice(): BigDecimal {
+    let value = this.get("currentEthPrice");
+    return value.toBigDecimal();
+  }
+
+  set currentEthPrice(value: BigDecimal) {
+    this.set("currentEthPrice", Value.fromBigDecimal(value));
+  }
+
   get mintTotalSent(): BigInt {
     let value = this.get("mintTotalSent");
     return value.toBigInt();
@@ -474,6 +501,91 @@ export class TokenDailyData extends Entity {
 
   set redeemTotalReceived(value: BigInt) {
     this.set("redeemTotalReceived", Value.fromBigInt(value));
+  }
+
+  get txCount(): BigInt {
+    let value = this.get("txCount");
+    return value.toBigInt();
+  }
+
+  set txCount(value: BigInt) {
+    this.set("txCount", Value.fromBigInt(value));
+  }
+}
+
+export class DailyData extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save DailyData entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save DailyData entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("DailyData", id.toString(), this);
+  }
+
+  static load(id: string): DailyData | null {
+    return store.get("DailyData", id) as DailyData | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get date(): i32 {
+    let value = this.get("date");
+    return value.toI32();
+  }
+
+  set date(value: i32) {
+    this.set("date", Value.fromI32(value));
+  }
+
+  get cumulativeUSDvolume(): BigDecimal {
+    let value = this.get("cumulativeUSDvolume");
+    return value.toBigDecimal();
+  }
+
+  set cumulativeUSDvolume(value: BigDecimal) {
+    this.set("cumulativeUSDvolume", Value.fromBigDecimal(value));
+  }
+
+  get cumulativeETHVolume(): BigDecimal {
+    let value = this.get("cumulativeETHVolume");
+    return value.toBigDecimal();
+  }
+
+  set cumulativeETHVolume(value: BigDecimal) {
+    this.set("cumulativeETHVolume", Value.fromBigDecimal(value));
+  }
+
+  get totalValueLockedUSD(): BigDecimal {
+    let value = this.get("totalValueLockedUSD");
+    return value.toBigDecimal();
+  }
+
+  set totalValueLockedUSD(value: BigDecimal) {
+    this.set("totalValueLockedUSD", Value.fromBigDecimal(value));
+  }
+
+  get totalValueLockedETH(): BigDecimal {
+    let value = this.get("totalValueLockedETH");
+    return value.toBigDecimal();
+  }
+
+  set totalValueLockedETH(value: BigDecimal) {
+    this.set("totalValueLockedETH", Value.fromBigDecimal(value));
   }
 
   get txCount(): BigInt {

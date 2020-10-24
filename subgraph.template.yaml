@@ -39,8 +39,8 @@ templates:
       abis:
         - name: GToken
           file: ./abis/GToken.json
-        - name: CToken
-          file: ./abis/CToken.json
+        - name: UniswapV2Pair
+          file: ./abis/UniswapV2Pair.json
       callHandlers:
         - function: deposit(uint256)
           handler: handleDeposit

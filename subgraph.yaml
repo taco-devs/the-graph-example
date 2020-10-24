@@ -8,7 +8,7 @@ dataSources:
     source:
       address: '0xE468bb6Dca05521E6a6270CC9E40276F7a79F999'
       abi: TokenRegistry
-      startBlock: 11108820
+      startBlock: 11108864
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -39,8 +39,8 @@ templates:
       abis:
         - name: GToken
           file: ./abis/GToken.json
-        - name: CToken
-          file: ./abis/CToken.json
+        - name: UniswapV2Pair
+          file: ./abis/UniswapV2Pair.json
       callHandlers:
         - function: deposit(uint256)
           handler: handleDeposit
