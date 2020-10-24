@@ -552,22 +552,22 @@ export class DailyData extends Entity {
     this.set("date", Value.fromI32(value));
   }
 
-  get cumulativeUSDvolume(): BigDecimal {
-    let value = this.get("cumulativeUSDvolume");
+  get dailyUSDvolume(): BigDecimal {
+    let value = this.get("dailyUSDvolume");
     return value.toBigDecimal();
   }
 
-  set cumulativeUSDvolume(value: BigDecimal) {
-    this.set("cumulativeUSDvolume", Value.fromBigDecimal(value));
+  set dailyUSDvolume(value: BigDecimal) {
+    this.set("dailyUSDvolume", Value.fromBigDecimal(value));
   }
 
-  get cumulativeETHVolume(): BigDecimal {
-    let value = this.get("cumulativeETHVolume");
+  get dailyETHVolume(): BigDecimal {
+    let value = this.get("dailyETHVolume");
     return value.toBigDecimal();
   }
 
-  set cumulativeETHVolume(value: BigDecimal) {
-    this.set("cumulativeETHVolume", Value.fromBigDecimal(value));
+  set dailyETHVolume(value: BigDecimal) {
+    this.set("dailyETHVolume", Value.fromBigDecimal(value));
   }
 
   get totalValueLockedUSD(): BigDecimal {
@@ -588,6 +588,24 @@ export class DailyData extends Entity {
     this.set("totalValueLockedETH", Value.fromBigDecimal(value));
   }
 
+  get cumulativeTotalValueLockedUSD(): BigDecimal {
+    let value = this.get("cumulativeTotalValueLockedUSD");
+    return value.toBigDecimal();
+  }
+
+  set cumulativeTotalValueLockedUSD(value: BigDecimal) {
+    this.set("cumulativeTotalValueLockedUSD", Value.fromBigDecimal(value));
+  }
+
+  get cumulativeTotalValueLockedETH(): BigDecimal {
+    let value = this.get("cumulativeTotalValueLockedETH");
+    return value.toBigDecimal();
+  }
+
+  set cumulativeTotalValueLockedETH(value: BigDecimal) {
+    this.set("cumulativeTotalValueLockedETH", Value.fromBigDecimal(value));
+  }
+
   get txCount(): BigInt {
     let value = this.get("txCount");
     return value.toBigInt();
@@ -595,5 +613,54 @@ export class DailyData extends Entity {
 
   set txCount(value: BigInt) {
     this.set("txCount", Value.fromBigInt(value));
+  }
+}
+
+export class TotalValueLocked extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save TotalValueLocked entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save TotalValueLocked entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("TotalValueLocked", id.toString(), this);
+  }
+
+  static load(id: string): TotalValueLocked | null {
+    return store.get("TotalValueLocked", id) as TotalValueLocked | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get totalValueLockedETH(): BigDecimal {
+    let value = this.get("totalValueLockedETH");
+    return value.toBigDecimal();
+  }
+
+  set totalValueLockedETH(value: BigDecimal) {
+    this.set("totalValueLockedETH", Value.fromBigDecimal(value));
+  }
+
+  get totalValueLockedUSD(): BigDecimal {
+    let value = this.get("totalValueLockedUSD");
+    return value.toBigDecimal();
+  }
+
+  set totalValueLockedUSD(value: BigDecimal) {
+    this.set("totalValueLockedUSD", Value.fromBigDecimal(value));
   }
 }

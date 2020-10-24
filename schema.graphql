@@ -60,12 +60,20 @@ type TokenDailyData @entity {
 type DailyData @entity {
   id: ID!
   date: Int!
-  
-  cumulativeUSDvolume: BigDecimal!
-  cumulativeETHVolume: BigDecimal!
+
+  dailyUSDvolume: BigDecimal!
+  dailyETHVolume: BigDecimal!
 
   totalValueLockedUSD: BigDecimal!
   totalValueLockedETH: BigDecimal!
+  cumulativeTotalValueLockedUSD: BigDecimal!
+  cumulativeTotalValueLockedETH: BigDecimal!
 
   txCount: BigInt!
+}
+
+type TotalValueLocked @entity {
+  id: ID!
+  totalValueLockedETH: BigDecimal!
+  totalValueLockedUSD: BigDecimal!
 }

@@ -23,7 +23,7 @@ import {
 } from '../generated/schema';
 
 import {
-  updateDailyData
+  updateTokenDailyData
 } from './priceAggregators';
 
 import { ONE_BI, ZERO_BD, ZERO_BI } from './helpers'
@@ -244,7 +244,7 @@ export function handleDeposit(call: DepositCall): void {
 
     // Handle transaction aggregation
     transactionAggregator(call.from, token, received.value0, MINT);
-    updateDailyData(call, token, call.inputs._cost, received.value0, ZERO_BI, ZERO_BI);
+    updateTokenDailyData(call, token, call.inputs._cost, received.value0, ZERO_BI, ZERO_BI);
 }
 
 // Deposit Underlying
@@ -286,7 +286,7 @@ export function handleDepositUnderlying(call: DepositUnderlyingCall): void {
   mint.save();
 
   transactionAggregator(call.from, token, received.value0, MINT);
-  updateDailyData(call, token, underlyingConversion, received.value0, ZERO_BI, ZERO_BI);
+  updateTokenDailyData(call, token, underlyingConversion, received.value0, ZERO_BI, ZERO_BI);
 }
 
 // Withdraw
@@ -326,7 +326,7 @@ export function handleWithdraw(call: WithdrawCall): void {
   redeem.save();
 
   transactionAggregator(call.from, token, call.inputs._grossShares, REDEEM);
-  updateDailyData(call, token, ZERO_BI, ZERO_BI, call.inputs._grossShares, received.value0);
+  updateTokenDailyData(call, token, ZERO_BI, ZERO_BI, call.inputs._grossShares, received.value0);
 }
 
 // Withdraw
@@ -368,5 +368,5 @@ export function handleWithdrawUnderlying(call: WithdrawUnderlyingCall): void {
   redeem.save();
 
   transactionAggregator(call.from, token, call.inputs._grossShares, REDEEM);
-  updateDailyData(call, token, ZERO_BI, ZERO_BI, call.inputs._grossShares, _cost.value0);
+  updateTokenDailyData(call, token, ZERO_BI, ZERO_BI, call.inputs._grossShares, _cost.value0);
 }

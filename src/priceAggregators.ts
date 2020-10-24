@@ -1,5 +1,5 @@
 import { UniswapV2Pair } from '../generated/templates/GToken/UniswapV2Pair';
-import { Token, TokenDailyData } from './../generated/schema';
+import { Token, TokenDailyData, DailyData, TotalValueLocked } from './../generated/schema';
 import { BigDecimal, BigInt, ethereum, Address, log } from '@graphprotocol/graph-ts';
 import { ONE_BI, ZERO_BD, ZERO_BI } from './helpers';
 import { getPair } from './tokenPairRouter';
@@ -51,7 +51,88 @@ export function calculateTokenCurrentPrice(token: Token): BigDecimal {
     }
 }
 
-export function updateDailyData(call: ethereum.Call, token: Token, mintCost: BigInt, mintReceived: BigInt, redeemCost: BigInt, redeemReceived: BigInt): void {
+// Update the total value locked
+export function updateTotalValueLocked(mintTotalEth: BigDecimal, redeemTotalEth: BigDecimal): TotalValueLocked {
+    
+    // Get the total value locked
+    let tvl = TotalValueLocked.load('1');
+
+    if (tvl == null) {
+        tvl = new TotalValueLocked('1');
+        tvl.totalValueLockedETH = ZERO_BD;
+        tvl.totalValueLockedUSD = ZERO_BD;
+    }
+
+    tvl.totalValueLockedETH = tvl.totalValueLockedETH.plus(mintTotalEth).minus(redeemTotalEth);
+    tvl.totalValueLockedUSD = tvl.totalValueLockedUSD.plus(mintTotalEth.times(getETHCurrentPrice())).minus(redeemTotalEth.times(getETHCurrentPrice()));
+
+    tvl.save();
+
+    return tvl as TotalValueLocked;
+}
+
+// Update the daily data 
+export function updateDailyData(call: ethereum.Call, token: Token, mintTotalReceived: BigInt, redeemTotalReceived: BigInt, mintCost: BigInt, redeemReceived: BigInt): void {
+
+    let tokenFactor = BigDecimal.fromString('100000000'); // 1e8 for cTokens and gcTokens
+
+    let timestamp = call.block.timestamp.toI32();
+    let dayID = timestamp / 86400
+    let dayStartTimestamp = dayID * 86400
+
+    let dailyDataID = BigInt.fromI32(dayID).toString();
+
+    let dailyData = DailyData.load(dailyDataID);
+
+    if (dailyData == null) {
+        dailyData = new DailyData(dailyDataID);
+        dailyData.date = dayStartTimestamp;
+        dailyData.txCount = ZERO_BI; 
+        dailyData.dailyETHVolume = ZERO_BD;
+        dailyData.dailyUSDvolume = ZERO_BD;
+        dailyData.totalValueLockedETH = ZERO_BD;
+        dailyData.totalValueLockedUSD = ZERO_BD;
+    }   
+
+    
+    let token_eth_price = calculateTokenCurrentPrice(token);
+
+    // Calculate the cumulative for the base asset in ETH
+    let mint_volume_eth = new BigDecimal(mintTotalReceived);
+    let redeem_volumen_eth = new BigDecimal(redeemTotalReceived);
+    
+    let BD_mint_volume_eth = mint_volume_eth.div(tokenFactor).times(token_eth_price);
+    let BD_redeem_volume_eth = redeem_volumen_eth.div(tokenFactor).times(token_eth_price);
+
+    dailyData.dailyETHVolume = BD_mint_volume_eth.plus(BD_redeem_volume_eth);
+    dailyData.dailyUSDvolume = BD_mint_volume_eth.plus(BD_redeem_volume_eth).times(getETHCurrentPrice());
+
+    // Get the total value locked on each day
+    let currentEthTVL = BD_mint_volume_eth.minus(BD_redeem_volume_eth);
+    let currentUsdTVL = (BD_mint_volume_eth.times(getETHCurrentPrice())).minus(BD_redeem_volume_eth.times(getETHCurrentPrice()));
+
+    dailyData.totalValueLockedETH = currentEthTVL;
+    dailyData.totalValueLockedUSD = currentUsdTVL;
+
+
+    // Update the total value locked
+    let BD_mint_cost = new BigDecimal(mintCost);
+    let BD_redeem_received = new BigDecimal(redeemReceived);
+
+    let tvl = updateTotalValueLocked(
+        BD_mint_cost.div(tokenFactor).times(token_eth_price),
+        BD_redeem_received.div(tokenFactor).times(token_eth_price),
+    )
+
+    dailyData.cumulativeTotalValueLockedETH = tvl.totalValueLockedETH;
+    dailyData.cumulativeTotalValueLockedUSD = tvl.totalValueLockedUSD;
+
+    dailyData.txCount = dailyData.txCount.plus(ONE_BI)
+    dailyData.save()
+}
+ 
+// Update the daily data for a token
+export function updateTokenDailyData(call: ethereum.Call, token: Token, mintCost: BigInt, mintReceived: BigInt, redeemCost: BigInt, redeemReceived: BigInt): void {
     
     let timestamp = call.block.timestamp.toI32();
     let dayID = timestamp / 86400
@@ -84,6 +165,10 @@ export function updateDailyData(call: ethereum.Call, token: Token, mintCost: Big
     tokenDailyData.currentPrice = calculateTokenCurrentPrice(token).times(getETHCurrentPrice());
     tokenDailyData.currentEthPrice = calculateTokenCurrentPrice(token);
     
+    
     tokenDailyData.txCount = tokenDailyData.txCount.plus(ONE_BI);
     tokenDailyData.save();
+
+    // Update Daily Data aggregation
+    updateDailyData(call, token, tokenDailyData.mintTotalSent, tokenDailyData.redeemTotalReceived, mintCost, redeemReceived );
 }

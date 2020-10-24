@@ -56,3 +56,24 @@ type TokenDailyData @entity {
 
   txCount: BigInt!
 }
+
+type DailyData @entity {
+  id: ID!
+  date: Int!
+
+  dailyUSDvolume: BigDecimal!
+  dailyETHVolume: BigDecimal!
+
+  totalValueLockedUSD: BigDecimal!
+  totalValueLockedETH: BigDecimal!
+  cumulativeTotalValueLockedUSD: BigDecimal!
+  cumulativeTotalValueLockedETH: BigDecimal!
+
+  txCount: BigInt!
+}
+
+type TotalValueLocked @entity {
+  id: ID!
+  totalValueLockedETH: BigDecimal!
+  totalValueLockedUSD: BigDecimal!
+}
