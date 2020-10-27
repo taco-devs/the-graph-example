@@ -19,7 +19,7 @@ dataSources:
         - name: TokenRegistry
           file: ./abis/TokenRegistry.json
       eventHandlers:
-        - event: NewToken(indexed address)
+        - event: NewToken(indexed address,indexed address)
           handler: handleNewToken
       file: ./src/core.ts
 templates:

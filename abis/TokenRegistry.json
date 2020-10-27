@@ -7,6 +7,12 @@
         "internalType": "address",
         "name": "_growthToken",
         "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "_oldGrowthToken",
+        "type": "address"
       }
     ],
     "name": "NewToken",
@@ -40,7 +46,12 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "_growthToken", "type": "address" }
+      { "internalType": "address", "name": "_growthToken", "type": "address" },
+      {
+        "internalType": "address",
+        "name": "_oldGrowthToken",
+        "type": "address"
+      }
     ],
     "name": "registerNewToken",
     "outputs": [],

@@ -61,7 +61,7 @@ type DailyData @entity {
   id: ID!
   date: Int!
 
-  dailyUSDvolume: BigDecimal!
+  dailyUSDVolume: BigDecimal!
   dailyETHVolume: BigDecimal!
 
   totalValueLockedUSD: BigDecimal!

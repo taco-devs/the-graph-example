@@ -89,7 +89,7 @@ export function updateDailyData(call: ethereum.Call, token: Token, mintTotalRece
         dailyData.date = dayStartTimestamp;
         dailyData.txCount = ZERO_BI; 
         dailyData.dailyETHVolume = ZERO_BD;
-        dailyData.dailyUSDvolume = ZERO_BD;
+        dailyData.dailyUSDVolume = ZERO_BD;
         dailyData.totalValueLockedETH = ZERO_BD;
         dailyData.totalValueLockedUSD = ZERO_BD;
     }   
@@ -105,7 +105,7 @@ export function updateDailyData(call: ethereum.Call, token: Token, mintTotalRece
     let BD_redeem_volume_eth = redeem_volumen_eth.div(tokenFactor).times(token_eth_price);
 
     dailyData.dailyETHVolume = BD_mint_volume_eth.plus(BD_redeem_volume_eth);
-    dailyData.dailyUSDvolume = BD_mint_volume_eth.plus(BD_redeem_volume_eth).times(getETHCurrentPrice());
+    dailyData.dailyUSDVolume = BD_mint_volume_eth.plus(BD_redeem_volume_eth).times(getETHCurrentPrice());
 
     // Get the total value locked on each day
     let currentEthTVL = BD_mint_volume_eth.minus(BD_redeem_volume_eth);

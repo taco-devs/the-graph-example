@@ -6,9 +6,9 @@ dataSources:
     name: TokenRegistry
     network: mainnet
     source:
-      address: "0xE468bb6Dca05521E6a6270CC9E40276F7a79F999"
+      address: "0xd01F19dc90cCaa4B1d17E2F73316CFA7942DD5E3"
       abi: TokenRegistry
-      startBlock: 11108864
+      startBlock: 11130000
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -19,7 +19,7 @@ dataSources:
         - name: TokenRegistry
           file: TokenRegistry/abis/TokenRegistry.json
       eventHandlers:
-        - event: NewToken(indexed address)
+        - event: NewToken(indexed address,indexed address)
           handler: handleNewToken
       file: TokenRegistry/TokenRegistry.wasm
 templates:

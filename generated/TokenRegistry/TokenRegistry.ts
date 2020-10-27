@@ -26,6 +26,10 @@ export class NewToken__Params {
   get _growthToken(): Address {
     return this._event.parameters[0].value.toAddress();
   }
+
+  get _oldGrowthToken(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
 }
 
 export class OwnershipTransferred extends ethereum.Event {
@@ -90,6 +94,10 @@ export class RegisterNewTokenCall__Inputs {
 
   get _growthToken(): Address {
     return this._call.inputValues[0].value.toAddress();
+  }
+
+  get _oldGrowthToken(): Address {
+    return this._call.inputValues[1].value.toAddress();
   }
 }
 

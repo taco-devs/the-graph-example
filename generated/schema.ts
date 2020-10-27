@@ -552,13 +552,13 @@ export class DailyData extends Entity {
     this.set("date", Value.fromI32(value));
   }
 
-  get dailyUSDvolume(): BigDecimal {
-    let value = this.get("dailyUSDvolume");
+  get dailyUSDVolume(): BigDecimal {
+    let value = this.get("dailyUSDVolume");
     return value.toBigDecimal();
   }
 
-  set dailyUSDvolume(value: BigDecimal) {
-    this.set("dailyUSDvolume", Value.fromBigDecimal(value));
+  set dailyUSDVolume(value: BigDecimal) {
+    this.set("dailyUSDVolume", Value.fromBigDecimal(value));
   }
 
   get dailyETHVolume(): BigDecimal {
