@@ -51,6 +51,15 @@ export class Transaction extends Entity {
     this.set("from", Value.fromBytes(value));
   }
 
+  get to(): Bytes {
+    let value = this.get("to");
+    return value.toBytes();
+  }
+
+  set to(value: Bytes) {
+    this.set("to", Value.fromBytes(value));
+  }
+
   get action(): string {
     let value = this.get("action");
     return value.toString();
@@ -389,6 +398,15 @@ export class Token extends Entity {
 
   set withdrawalFee(value: BigInt) {
     this.set("withdrawalFee", Value.fromBigInt(value));
+  }
+
+  get tokenDailyDatas(): Array<string> {
+    let value = this.get("tokenDailyDatas");
+    return value.toStringArray();
+  }
+
+  set tokenDailyDatas(value: Array<string>) {
+    this.set("tokenDailyDatas", Value.fromStringArray(value));
   }
 }
 

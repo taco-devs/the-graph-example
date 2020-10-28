@@ -1,6 +1,7 @@
 type Transaction @entity {
   id: ID! 
   from: Bytes!
+  to: Bytes!
   action: String!
   type: String!
   sent: BigInt
@@ -37,6 +38,8 @@ type Token @entity {
   totalReserve: BigInt!
   depositFee: BigInt!
   withdrawalFee: BigInt!
+
+  tokenDailyDatas: [TokenDailyData!]! @derivedFrom(field: "token")
 }
 
 type TokenDailyData @entity {

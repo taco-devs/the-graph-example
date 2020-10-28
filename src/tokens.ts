@@ -8,6 +8,7 @@ import {
   InitiateLiquidityPoolMigration,
   OwnershipTransferred,
   Transfer as TransferEvent,
+  TransferCall,
   DepositCall,
   DepositUnderlyingCall,
   WithdrawCall,
@@ -31,6 +32,7 @@ import { ONE_BI, ZERO_BD, ZERO_BI } from './helpers'
 // Constant types
 const MINT = 'MINT';
 const REDEEM = 'REDEEM';
+const TRANSFER = 'TRANSFER';
 
 // TokenManager
 function getToken(address: Address): Token {
@@ -78,7 +80,7 @@ function transactionAggregator(address: Address, token: Token, amount: BigInt, t
   }
 
   // Add a new transaction to the user
-  user.transactions = user.transactions + ONE_BI;
+  user.transactions = user.transactions.plus(ONE_BI);
 
   // Add the transaction to the balances 
   let user_balance_id = token.symbol
@@ -96,11 +98,15 @@ function transactionAggregator(address: Address, token: Token, amount: BigInt, t
 
   // Update the user balance
   if (type === MINT) {
-        user_balance.amount = user_balance.amount + amount;
+        user_balance.amount = user_balance.amount.plus(amount);
   }
 
   if (type === REDEEM) {
-        user_balance.amount = user_balance.amount - amount;
+        if (user_balance.amount.le(amount)) {
+          user_balance.amount = ZERO_BI;
+        } else {
+          user_balance.amount = user_balance.amount.minus(amount);
+        }
   }
 
   user.save();
@@ -203,12 +209,67 @@ export function handleInitiateLiquidityPoolMigration(
 
 export function handleOwnershipTransferred(event: OwnershipTransferred): void {}
 
-export function handleTransfer(event: TransferEvent): void {};
+export function handleTransferEvent(event: TransferEvent): void {}
+
+export function handleTransfer(call: TransferCall): void {
+  
+  /* let token = getToken(call.to);
+  
+  // Create or load a new sender
+  let sender_id = token.symbol.concat('_').concat(call.transaction.from.toHex());
+  let sender_user_balance = UserBalance.load(sender_id);
+
+  if (sender_user_balance == null) {
+    sender_user_balance = new UserBalance(sender_id);
+    
+    // Create or Load an user
+    // Handle 0 amount transfers
+    let sender_user = User.load(call.transaction.from.toHex());
+
+    if (sender_user == null) {
+      sender_user = new User(call.transaction.from.toHex());
+      sender_user.address = call.transaction.from;
+    } 
+
+    sender_user_balance.token = token.id;
+    sender_user_balance.user = sender_user.id;
+    sender_user_balance.amount = ZERO_BI;
+    sender_user.save()
+  } else {
+    sender_user_balance.amount = sender_user_balance.amount.minus(call.inputs.amount);
+  }
+
+  // Create or load a new receiver
+  let receiver_id = token.symbol.concat('_').concat(call.inputs.recipient.toHex())
+  let receiver_user_balance = UserBalance.load(receiver_id);
+
+  if (receiver_user_balance == null) {
+    receiver_user_balance = new UserBalance(receiver_id);
+    receiver_user_balance.amount = ZERO_BI;
+
+    // Create or Load an user
+    // Handle 0 amount transfers
+    let receiver_user = User.load(call.inputs.recipient.toHex());
+
+    if (receiver_user == null) {
+      receiver_user = new User(call.inputs.recipient.toHex());
+      receiver_user.address = call.inputs.recipient;
+    } 
+
+    receiver_user_balance.token = token.id;
+    receiver_user_balance.user = receiver_user.id;
+    receiver_user_balance.amount = receiver_user_balance.amount.plus(call.inputs.amount);
+    
+    receiver_user.save();
+  }
+
+  sender_user_balance.save();
+  receiver_user_balance.save(); */
+
+};
 
 // Deposit
 export function handleDeposit(call: DepositCall): void {
-
-    log.debug(`Trying to fetch ${call.block.number}`, []);
 
     let token = getToken(call.to);
 
@@ -232,6 +293,7 @@ export function handleDeposit(call: DepositCall): void {
     let received = token_contract.calcDepositSharesFromCost(call.inputs._cost, totalReserve, totalSupply, depositFee);
 
     mint.from = call.from;
+    mint.to = call.to;
     mint.action = 'mint';
     mint.type = 'base';
     mint.sent = call.inputs._cost;
@@ -275,6 +337,7 @@ export function handleDepositUnderlying(call: DepositUnderlyingCall): void {
   let received = token_contract.calcDepositSharesFromCost(underlyingConversion, totalReserve, totalSupply, depositFee);
 
   mint.from = call.from;
+  mint.to = call.to;
   mint.action = 'mint';
   mint.type = 'underlying';
   mint.sent = call.inputs._underlyingCost;
@@ -315,6 +378,7 @@ export function handleWithdraw(call: WithdrawCall): void {
   let received = token_contract.calcWithdrawalCostFromShares(call.inputs._grossShares, totalReserve, totalSupply, withdrawalFee);
 
   redeem.from = call.from;
+  redeem.to = call.to;
   redeem.action = 'redeem';
   redeem.type = 'base';
   redeem.sent = call.inputs._grossShares;
@@ -357,6 +421,7 @@ export function handleWithdrawUnderlying(call: WithdrawUnderlyingCall): void {
   let received = token_contract.calcUnderlyingCostFromCost(_cost.value0, exchangeRate);
 
   redeem.from = call.from;
+  redeem.to = call.to;
   redeem.action = 'redeem';
   redeem.type = 'underlying';
   redeem.sent = call.inputs._grossShares;
