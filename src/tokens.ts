@@ -213,7 +213,9 @@ export function handleTransferEvent(event: TransferEvent): void {}
 
 export function handleTransfer(call: TransferCall): void {
   
-  /* let token = getToken(call.to);
+  log.info('Transfer detected', []);
+  let token = getToken(call.to);
+
   
   // Create or load a new sender
   let sender_id = token.symbol.concat('_').concat(call.transaction.from.toHex());
@@ -264,7 +266,7 @@ export function handleTransfer(call: TransferCall): void {
   }
 
   sender_user_balance.save();
-  receiver_user_balance.save(); */
+  receiver_user_balance.save();
 
 };
 

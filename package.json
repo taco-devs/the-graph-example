@@ -1,5 +1,5 @@
 {
-  "name": "growth-defi-kovan",
+  "name": "growth-defi-graph",
   "license": "UNLICENSED",
   "scripts": {
     "codegen": "graph codegen",
@@ -7,8 +7,8 @@
     "prepare:kovan": "mustache config/kovan.json subgraph.template.yaml > subgraph.yaml",
     "prepare:mainnet": "mustache config/mainnet.json subgraph.template.yaml > subgraph.yaml",
     "deploy:kovan": "npm run prepare:kovan && npm run build && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ irvollo/growth-defi-kovan",
-    "deploy:mainnet": "npm run prepare:mainnet && npm run build && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ irvollo/growth-defi",
-    "deploy:prod": "npm run prepare:mainnet && npm run build && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ growthdefi/growth-defi",
+    "deploy:mainnet": "npm run prepare:mainnet && npm run build && graph auth https://api.thegraph.com/deploy/ $(grep DEV_KEY .env | cut -d '=' -f2) && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ irvollo/growth-defi",
+    "deploy:prod": "npm run prepare:mainnet && npm run build && graph auth https://api.thegraph.com/deploy/ $(grep PROD_KEY .env | cut -d '=' -f2) && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ growthdefi/growth-defi",
     "create-local": "graph create --node http://localhost:8020/ irvollo/growth-defi-kovan",
     "remove-local": "graph remove --node http://localhost:8020/ irvollo/growth-defi-kovan",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 irvollo/growth-defi-kovan"
