@@ -36,14 +36,15 @@ templates:
         - Token
         - Transaction
         - User
+        - UserBalance
       abis:
         - name: GToken
           file: GToken/abis/GToken.json
         - name: UniswapV2Pair
           file: GToken/abis/UniswapV2Pair.json
+        - name: CToken
+          file: GToken/abis/CToken.json
       callHandlers:
-        - function: handleTransfer
-          handler: transfer(address, uint256)
         - function: deposit(uint256)
           handler: handleDeposit
         - function: depositUnderlying(uint256)
@@ -52,6 +53,8 @@ templates:
           handler: handleWithdraw
         - function: withdrawUnderlying(uint256)
           handler: handleWithdrawUnderlying
+        - function: transfer(address,uint256)
+          handler: handleUserTransfer
       eventHandlers:
         - event: Approval(indexed address,indexed address,uint256)
           handler: handleApproval
@@ -65,4 +68,6 @@ templates:
           handler: handleInitiateLiquidityPoolMigration
         - event: OwnershipTransferred(indexed address,indexed address)
           handler: handleOwnershipTransferred
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
       file: templates/GToken/GToken.wasm

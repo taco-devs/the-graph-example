@@ -261,13 +261,13 @@ export class UserBalance extends Entity {
     this.set("token", Value.fromString(value));
   }
 
-  get amount(): BigInt {
+  get amount(): BigDecimal {
     let value = this.get("amount");
-    return value.toBigInt();
+    return value.toBigDecimal();
   }
 
-  set amount(value: BigInt) {
-    this.set("amount", Value.fromBigInt(value));
+  set amount(value: BigDecimal) {
+    this.set("amount", Value.fromBigDecimal(value));
   }
 }
 
@@ -465,6 +465,15 @@ export class TokenDailyData extends Entity {
 
   set avgPrice(value: BigDecimal) {
     this.set("avgPrice", Value.fromBigDecimal(value));
+  }
+
+  get avgUnderlyingPrice(): BigDecimal {
+    let value = this.get("avgUnderlyingPrice");
+    return value.toBigDecimal();
+  }
+
+  set avgUnderlyingPrice(value: BigDecimal) {
+    this.set("avgUnderlyingPrice", Value.fromBigDecimal(value));
   }
 
   get currentPrice(): BigDecimal {

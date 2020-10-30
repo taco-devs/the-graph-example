@@ -1,4 +1,4 @@
-import { Address, BigInt, ethereum, log } from "@graphprotocol/graph-ts"
+import { Address, BigDecimal, BigInt, ethereum, log } from "@graphprotocol/graph-ts"
 import {
   GToken,
   Approval,
@@ -7,7 +7,7 @@ import {
   CompleteLiquidityPoolMigration,
   InitiateLiquidityPoolMigration,
   OwnershipTransferred,
-  Transfer as TransferEvent,
+  Transfer,
   TransferCall,
   DepositCall,
   DepositUnderlyingCall,
@@ -70,7 +70,7 @@ function getToken(address: Address): Token {
 function transactionAggregator(address: Address, token: Token, amount: BigInt, type: String ): void {
 
   // Get the User
-  let user = User.load(address.toHex());
+  /* let user = User.load(address.toHex());
 
   // If there isn't a user add a new one 
   if (user == null) {
@@ -93,24 +93,21 @@ function transactionAggregator(address: Address, token: Token, amount: BigInt, t
       user_balance = new UserBalance(user_balance_id);
       user_balance.token = token.id;
       user_balance.user = user.id;
-      user_balance.amount = ZERO_BI;
+      user_balance.amount = ZERO_BD;
   } 
 
   // Update the user balance
+  let BD_amount = new BigDecimal(amount);
   if (type === MINT) {
-        user_balance.amount = user_balance.amount.plus(amount);
+        user_balance.amount = user_balance.amount.plus(BD_amount);
   }
 
   if (type === REDEEM) {
-        if (user_balance.amount.le(amount)) {
-          user_balance.amount = ZERO_BI;
-        } else {
-          user_balance.amount = user_balance.amount.minus(amount);
-        }
+    user_balance.amount = user_balance.amount.minus(BD_amount);
   }
 
   user.save();
-  user_balance.save();
+  user_balance.save(); */
 }
 
 
@@ -209,66 +206,7 @@ export function handleInitiateLiquidityPoolMigration(
 
 export function handleOwnershipTransferred(event: OwnershipTransferred): void {}
 
-export function handleTransferEvent(event: TransferEvent): void {}
-
-export function handleTransfer(call: TransferCall): void {
-  
-  log.info('Transfer detected', []);
-  let token = getToken(call.to);
-
-  
-  // Create or load a new sender
-  let sender_id = token.symbol.concat('_').concat(call.transaction.from.toHex());
-  let sender_user_balance = UserBalance.load(sender_id);
-
-  if (sender_user_balance == null) {
-    sender_user_balance = new UserBalance(sender_id);
-    
-    // Create or Load an user
-    // Handle 0 amount transfers
-    let sender_user = User.load(call.transaction.from.toHex());
-
-    if (sender_user == null) {
-      sender_user = new User(call.transaction.from.toHex());
-      sender_user.address = call.transaction.from;
-    } 
-
-    sender_user_balance.token = token.id;
-    sender_user_balance.user = sender_user.id;
-    sender_user_balance.amount = ZERO_BI;
-    sender_user.save()
-  } else {
-    sender_user_balance.amount = sender_user_balance.amount.minus(call.inputs.amount);
-  }
-
-  // Create or load a new receiver
-  let receiver_id = token.symbol.concat('_').concat(call.inputs.recipient.toHex())
-  let receiver_user_balance = UserBalance.load(receiver_id);
-
-  if (receiver_user_balance == null) {
-    receiver_user_balance = new UserBalance(receiver_id);
-    receiver_user_balance.amount = ZERO_BI;
-
-    // Create or Load an user
-    // Handle 0 amount transfers
-    let receiver_user = User.load(call.inputs.recipient.toHex());
-
-    if (receiver_user == null) {
-      receiver_user = new User(call.inputs.recipient.toHex());
-      receiver_user.address = call.inputs.recipient;
-    } 
-
-    receiver_user_balance.token = token.id;
-    receiver_user_balance.user = receiver_user.id;
-    receiver_user_balance.amount = receiver_user_balance.amount.plus(call.inputs.amount);
-    
-    receiver_user.save();
-  }
-
-  sender_user_balance.save();
-  receiver_user_balance.save();
-
-};
+export function handleUserTransfer(call: TransferCall): void {};
 
 // Deposit
 export function handleDeposit(call: DepositCall): void {
@@ -305,9 +243,9 @@ export function handleDeposit(call: DepositCall): void {
     mint.token = token.id;
 
     mint.save();
+    log.info('hash: '.concat(call.transaction.hash.toHex()).concat(' ').concat(received.value0.toString()), []);
 
     // Handle transaction aggregation
-    transactionAggregator(call.from, token, received.value0, MINT);
     updateTokenDailyData(call, token, call.inputs._cost, received.value0, ZERO_BI, ZERO_BI);
 }
 
@@ -337,6 +275,7 @@ export function handleDepositUnderlying(call: DepositUnderlyingCall): void {
 
   // Calculate the amount received
   let received = token_contract.calcDepositSharesFromCost(underlyingConversion, totalReserve, totalSupply, depositFee);
+  log.info('hash: '.concat(call.transaction.hash.toHex()).concat(' ').concat(received.value0.toString()), []);
 
   mint.from = call.from;
   mint.to = call.to;
@@ -350,7 +289,6 @@ export function handleDepositUnderlying(call: DepositUnderlyingCall): void {
 
   mint.save();
 
-  transactionAggregator(call.from, token, received.value0, MINT);
   updateTokenDailyData(call, token, underlyingConversion, received.value0, ZERO_BI, ZERO_BI);
 }
 
@@ -391,7 +329,6 @@ export function handleWithdraw(call: WithdrawCall): void {
 
   redeem.save();
 
-  transactionAggregator(call.from, token, call.inputs._grossShares, REDEEM);
   updateTokenDailyData(call, token, ZERO_BI, ZERO_BI, call.inputs._grossShares, received.value0);
 }
 
@@ -434,6 +371,64 @@ export function handleWithdrawUnderlying(call: WithdrawUnderlyingCall): void {
 
   redeem.save();
 
-  transactionAggregator(call.from, token, call.inputs._grossShares, REDEEM);
   updateTokenDailyData(call, token, ZERO_BI, ZERO_BI, call.inputs._grossShares, _cost.value0);
+}
+
+
+export function handleTransfer(event: Transfer): void {
+
+  let token = getToken(event.address);
+
+  let BD_amount = new BigDecimal(event.params.value);
+
+  // Check for the sender
+  let sender = User.load(event.params.from.toHex());
+
+  if (sender == null) {
+    sender = new User(event.params.from.toHex());
+    sender.address = event.params.from;
+  } 
+
+  // Balance
+  let sender_id = token.symbol.concat('_').concat(event.params.from.toHex());
+
+  let sender_balance = UserBalance.load(sender_id);
+
+  if (sender_balance == null) {
+    sender_balance = new UserBalance(sender_id);
+    sender_balance.amount = BD_amount;
+  }
+
+  sender_balance.token = token.id;
+  sender_balance.user = sender.id;
+  sender_balance.amount = sender_balance.amount.minus(BD_amount);
+  
+  // Check for the receiver
+  let receiver = User.load(event.params.to.toHex());
+
+  if (receiver == null) {
+    receiver = new User(event.params.to.toHex());
+    receiver.address = event.params.to;
+  } 
+
+  // Balance
+  let receiver_id = token.symbol.concat('_').concat(event.params.to.toHex());
+
+  let receiver_balance = UserBalance.load(receiver_id);
+
+  if (receiver_balance == null) {
+    receiver_balance = new UserBalance(receiver_id);
+    receiver_balance.amount = ZERO_BD;
+  }
+
+  receiver_balance.token = token.id;
+  receiver_balance.user = receiver.id;
+  receiver_balance.amount = receiver_balance.amount.plus(BD_amount);
+
+
+  // Save all
+  sender.save();
+  sender_balance.save();
+  receiver.save();
+  receiver_balance.save();
 }

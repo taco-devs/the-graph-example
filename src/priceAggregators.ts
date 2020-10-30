@@ -1,3 +1,4 @@
+import { GToken } from "../generated/templates/GToken/GToken"
 import { UniswapV2Pair } from '../generated/templates/GToken/UniswapV2Pair';
 import { Token, TokenDailyData, DailyData, TotalValueLocked } from './../generated/schema';
 import { BigDecimal, BigInt, ethereum, Address, log } from '@graphprotocol/graph-ts';
@@ -156,15 +157,23 @@ export function updateTokenDailyData(call: ethereum.Call, token: Token, mintCost
         tokenDailyData.currentPrice = ZERO_BD;
     }   
 
+    // Instantiate
+    let token_contract = GToken.bind(Address.fromString(token.id));
+    let totalSupply = new BigDecimal(token_contract.totalSupply());
+    let totalReserve = new BigDecimal(token_contract.totalReserve());
+    let totalReserveUnderlying = new BigDecimal(token_contract.totalReserveUnderlying());
+
     tokenDailyData.token = token.id;
+    tokenDailyData.avgPrice = totalReserve.div(totalSupply);
+    tokenDailyData.avgUnderlyingPrice = totalReserveUnderlying.div(totalSupply);
     tokenDailyData.mintTotalSent = tokenDailyData.mintTotalSent.plus(mintCost);
     tokenDailyData.mintTotalReceived = tokenDailyData.mintTotalReceived.plus(mintReceived);
     tokenDailyData.redeemTotalSent = tokenDailyData.redeemTotalSent.plus(redeemCost);
     tokenDailyData.redeemTotalReceived = tokenDailyData.redeemTotalReceived.plus(redeemReceived);
 
-    tokenDailyData.currentPrice = calculateTokenCurrentPrice(token).times(getETHCurrentPrice());
-    tokenDailyData.currentEthPrice = calculateTokenCurrentPrice(token);
-    
+    // Calculate token price * current avgPrice
+    tokenDailyData.currentPrice = calculateTokenCurrentPrice(token).times(getETHCurrentPrice()).times(tokenDailyData.avgPrice);
+    tokenDailyData.currentEthPrice = calculateTokenCurrentPrice(token).times(tokenDailyData.avgPrice);
     
     tokenDailyData.txCount = tokenDailyData.txCount.plus(ONE_BI);
     tokenDailyData.save();
