@@ -44,6 +44,8 @@ templates:
           file: GToken/abis/UniswapV2Pair.json
         - name: CToken
           file: GToken/abis/CToken.json
+        - name: ERC20
+          file: GToken/abis/ERC20.json
       callHandlers:
         - function: deposit(uint256)
           handler: handleDeposit

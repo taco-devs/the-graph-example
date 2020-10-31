@@ -1,9 +1,12 @@
+import { CToken } from "../generated/templates/GToken/CToken"
+import { ERC20 } from "../generated/templates/GToken/ERC20"
 import { GToken } from "../generated/templates/GToken/GToken"
 import { UniswapV2Pair } from '../generated/templates/GToken/UniswapV2Pair';
 import { Token, TokenDailyData, DailyData, TotalValueLocked } from './../generated/schema';
 import { BigDecimal, BigInt, ethereum, Address, log } from '@graphprotocol/graph-ts';
-import { ONE_BI, ZERO_BD, ZERO_BI } from './helpers';
+import { ONE_BD, ONE_BI, ZERO_BD, ZERO_BI, exponentToBigDecimal } from './helpers';
 import { getPair } from './tokenPairRouter';
+import { getMarket } from './tokenMarketRouter';
 
 const USDC_WETH_PAIR = '0xb4e16d0168e52d35cacd2c6185b44281ec28c9dc';
 
@@ -29,28 +32,58 @@ export function getETHCurrentPrice(): BigDecimal {
 // Calculate current pair/eth price
 export function calculateTokenCurrentPrice(token: Token): BigDecimal {
 
+    // Load Underlying token address to get decimals
+    let underlying_address = Address.fromString(token.underlyingToken.toHexString());
+    let underlying_token_contract = ERC20.bind(underlying_address);
+    let underLying_decimals = underlying_token_contract.decimals();
+    let ctoken_decimals = 8;
+    
+    // Get Compound Market
+    let token_market_address = getMarket(token);
+    let oneCTokenUnderlying = ONE_BD;
+
+    if (token_market_address == null) {
+        return ONE_BD;
+    } else {
+        let token_market = CToken.bind(Address.fromString(token_market_address));
+        
+        let exchangeRate = new BigDecimal(token_market.exchangeRateStored());
+        let mantissa = exponentToBigDecimal(18 + underLying_decimals - ctoken_decimals);
+
+        oneCTokenUnderlying = exchangeRate.div(mantissa);
+    } 
+
     let token_pair_address = getPair(token);
 
     // If the token pair exists return the current rate, else 0.
     if (token_pair_address == null) {
-        return ZERO_BD;
+        return ONE_BD;
     } else {
         let token_pair = UniswapV2Pair.bind(Address.fromString(token_pair_address));
 
         // Price in Eth
-        let r0timesFactor = BigDecimal.fromString('100000000'); // 1e8
-        let r1timesFactor = BigDecimal.fromString('1000000000000000000'); // 1e18
+        let r0mantissa = exponentToBigDecimal(underLying_decimals); // Underlying decimals
+        let r1mantissa = exponentToBigDecimal(18); // ETH decimals
+
         let reserves0 = new BigDecimal(token_pair.getReserves().value0);
         let reserves1 = new BigDecimal(token_pair.getReserves().value1);
 
-        let r0 = reserves0.div(r0timesFactor);
-        let r1 = reserves1.div(r1timesFactor);
+        let r0 = reserves0.div(r0mantissa);
+        let r1 = reserves1.div(r1mantissa);
 
-        let ethPrice = r1.div(r0);
+        let ethPrice = r1.div(r0).times(oneCTokenUnderlying);
 
+        log.info('Eth price for underlying {} is {}, r0: {}, r1 {}, er: {} ', [
+            token.symbol,
+            ethPrice.toString(),
+            r0.toString(),
+            r1.toString(),
+            oneCTokenUnderlying.toString(),
+        ])
         return ethPrice;
     }
 }
+
 
 // Update the total value locked
 export function updateTotalValueLocked(mintTotalEth: BigDecimal, redeemTotalEth: BigDecimal): TotalValueLocked {
@@ -75,7 +108,7 @@ export function updateTotalValueLocked(mintTotalEth: BigDecimal, redeemTotalEth:
 // Update the daily data 
 export function updateDailyData(call: ethereum.Call, token: Token, mintTotalReceived: BigInt, redeemTotalReceived: BigInt, mintCost: BigInt, redeemReceived: BigInt): void {
 
-    let tokenFactor = BigDecimal.fromString('100000000'); // 1e8 for cTokens and gcTokens
+    let tokenFactor = exponentToBigDecimal(8); // 1e8 for cTokens and gcTokens
 
     let timestamp = call.block.timestamp.toI32();
     let dayID = timestamp / 86400
@@ -109,6 +142,7 @@ export function updateDailyData(call: ethereum.Call, token: Token, mintTotalRece
     dailyData.dailyUSDVolume = BD_mint_volume_eth.plus(BD_redeem_volume_eth).times(getETHCurrentPrice());
 
     // Get the total value locked on each day
+    
     let currentEthTVL = BD_mint_volume_eth.minus(BD_redeem_volume_eth);
     let currentUsdTVL = (BD_mint_volume_eth.times(getETHCurrentPrice())).minus(BD_redeem_volume_eth.times(getETHCurrentPrice()));
 

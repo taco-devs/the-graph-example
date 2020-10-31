@@ -377,6 +377,10 @@ export function handleWithdrawUnderlying(call: WithdrawUnderlyingCall): void {
 
 export function handleTransfer(event: Transfer): void {
 
+  // TODO
+  // 1 - Handle Balancer Pools
+
+
   let token = getToken(event.address);
 
   let BD_amount = new BigDecimal(event.params.value);
