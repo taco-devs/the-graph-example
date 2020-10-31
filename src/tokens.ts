@@ -53,6 +53,9 @@ function getToken(address: Address): Token {
     token.stakesToken = token_contract.stakesToken()
     token.underlyingToken = token_contract.underlyingToken();
     token.totalSupply = ZERO_BI;
+    token.lastDelta = ZERO_BD;
+    token.countTokenDailyDatas = 0;
+    token.cumulativeDailyChange = ZERO_BD;
   }
 
   // Update the total supply after each transaction

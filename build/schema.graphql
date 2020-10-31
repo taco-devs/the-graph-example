@@ -39,6 +39,9 @@ type Token @entity {
   depositFee: BigInt!
   withdrawalFee: BigInt!
 
+  lastDelta: BigDecimal!
+  countTokenDailyDatas: Int!
+  cumulativeDailyChange: BigDecimal!
   tokenDailyDatas: [TokenDailyData!]! @derivedFrom(field: "token")
 }
 

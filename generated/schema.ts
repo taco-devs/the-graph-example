@@ -400,6 +400,33 @@ export class Token extends Entity {
     this.set("withdrawalFee", Value.fromBigInt(value));
   }
 
+  get lastDelta(): BigDecimal {
+    let value = this.get("lastDelta");
+    return value.toBigDecimal();
+  }
+
+  set lastDelta(value: BigDecimal) {
+    this.set("lastDelta", Value.fromBigDecimal(value));
+  }
+
+  get countTokenDailyDatas(): i32 {
+    let value = this.get("countTokenDailyDatas");
+    return value.toI32();
+  }
+
+  set countTokenDailyDatas(value: i32) {
+    this.set("countTokenDailyDatas", Value.fromI32(value));
+  }
+
+  get cumulativeDailyChange(): BigDecimal {
+    let value = this.get("cumulativeDailyChange");
+    return value.toBigDecimal();
+  }
+
+  set cumulativeDailyChange(value: BigDecimal) {
+    this.set("cumulativeDailyChange", Value.fromBigDecimal(value));
+  }
+
   get tokenDailyDatas(): Array<string> {
     let value = this.get("tokenDailyDatas");
     return value.toStringArray();

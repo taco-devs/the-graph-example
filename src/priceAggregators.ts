@@ -189,6 +189,9 @@ export function updateTokenDailyData(call: ethereum.Call, token: Token, mintCost
         tokenDailyData.redeemTotalSent = ZERO_BI;
         tokenDailyData.redeemTotalReceived = ZERO_BI;
         tokenDailyData.currentPrice = ZERO_BD;
+
+        token.lastDelta = ZERO_BD;
+        token.countTokenDailyDatas = token.countTokenDailyDatas + 1;
     }   
 
     // Instantiate
@@ -212,6 +215,21 @@ export function updateTokenDailyData(call: ethereum.Call, token: Token, mintCost
     tokenDailyData.txCount = tokenDailyData.txCount.plus(ONE_BI);
     tokenDailyData.save();
 
+    // Handle cumulative delta
+    let yesterdayID = token.symbol
+        .concat('_')
+        .concat(BigInt.fromI32(dayID - 1).toString());
+    let yesterdayTokenDailyData = TokenDailyData.load(yesterdayID);
+
+    if (yesterdayTokenDailyData) {
+        // Change percentage
+        let changeDelta = (tokenDailyData.avgUnderlyingPrice.div(yesterdayTokenDailyData.avgUnderlyingPrice)).minus(ONE_BD);
+        token.cumulativeDailyChange = token.cumulativeDailyChange.minus(token.lastDelta).plus(changeDelta);
+        token.lastDelta = changeDelta;
+    }
+
     // Update Daily Data aggregation
     updateDailyData(call, token, tokenDailyData.mintTotalSent, tokenDailyData.redeemTotalReceived, mintCost, redeemReceived );
+    
+    token.save();
 }
