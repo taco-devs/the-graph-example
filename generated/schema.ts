@@ -418,6 +418,15 @@ export class Token extends Entity {
     this.set("countTokenDailyDatas", Value.fromI32(value));
   }
 
+  get listingDate(): i32 {
+    let value = this.get("listingDate");
+    return value.toI32();
+  }
+
+  set listingDate(value: i32) {
+    this.set("listingDate", Value.fromI32(value));
+  }
+
   get cumulativeDailyChange(): BigDecimal {
     let value = this.get("cumulativeDailyChange");
     return value.toBigDecimal();

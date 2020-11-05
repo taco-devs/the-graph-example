@@ -41,6 +41,7 @@ type Token @entity {
 
   lastDelta: BigDecimal!
   countTokenDailyDatas: Int!
+  listingDate: Int!
   cumulativeDailyChange: BigDecimal!
   tokenDailyDatas: [TokenDailyData!]! @derivedFrom(field: "token")
 }

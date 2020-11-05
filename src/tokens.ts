@@ -35,7 +35,7 @@ const REDEEM = 'REDEEM';
 const TRANSFER = 'TRANSFER';
 
 // TokenManager
-function getToken(address: Address): Token {
+function getToken(address: Address, block: ethereum.Block): Token {
 
   // Get the User
   let token = Token.load(address.toHex());
@@ -43,8 +43,15 @@ function getToken(address: Address): Token {
   let token_contract = GToken.bind(address);
 
   if (token == null) {
+
+    // Initial date
+    let timestamp = block.timestamp.toI32();
+    let dayID = timestamp / 86400
+    let dayStartTimestamp = dayID * 86400
+
     token = new Token(address.toHex());
 
+    token.listingDate = dayStartTimestamp;
     token.name = token_contract.name();
     token.symbol = token_contract.symbol();
     token.decimals = token_contract.decimals();
@@ -214,7 +221,7 @@ export function handleUserTransfer(call: TransferCall): void {};
 // Deposit
 export function handleDeposit(call: DepositCall): void {
 
-    let token = getToken(call.to);
+    let token = getToken(call.to, call.block);
 
     // Create a Mint entity
     let mint = Transaction.load(call.transaction.hash.toHex());
@@ -256,7 +263,7 @@ export function handleDeposit(call: DepositCall): void {
 export function handleDepositUnderlying(call: DepositUnderlyingCall): void {
 
   // Handle transaction aggregation
-  let token = getToken(call.to);
+  let token = getToken(call.to, call.block);
 
   // Create a Mint entity
   let mint = Transaction.load(call.transaction.hash.toHex());
@@ -299,7 +306,7 @@ export function handleDepositUnderlying(call: DepositUnderlyingCall): void {
 export function handleWithdraw(call: WithdrawCall): void {
 
   // Handle transaction aggregation
-  let token = getToken(call.to);
+  let token = getToken(call.to, call.block);
 
   // Create a Mint entity
   let redeem = Transaction.load(call.transaction.hash.toHex());
@@ -339,7 +346,7 @@ export function handleWithdraw(call: WithdrawCall): void {
 export function handleWithdrawUnderlying(call: WithdrawUnderlyingCall): void {
 
   // Handle transaction aggregation
-  let token = getToken(call.to);
+  let token = getToken(call.to, call.block);
 
   // Create a Mint entity
   let redeem = Transaction.load(call.transaction.hash.toHex());
@@ -384,7 +391,7 @@ export function handleTransfer(event: Transfer): void {
   // 1 - Handle Balancer Pools
 
 
-  let token = getToken(event.address);
+  let token = getToken(event.address, event.block);
 
   let BD_amount = new BigDecimal(event.params.value);
 
