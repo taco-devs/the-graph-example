@@ -146,6 +146,15 @@ export class Transaction extends Entity {
     }
   }
 
+  get date(): i32 {
+    let value = this.get("date");
+    return value.toI32();
+  }
+
+  set date(value: i32) {
+    this.set("date", Value.fromI32(value));
+  }
+
   get token(): string {
     let value = this.get("token");
     return value.toString();
@@ -528,6 +537,24 @@ export class TokenDailyData extends Entity {
 
   set currentEthPrice(value: BigDecimal) {
     this.set("currentEthPrice", Value.fromBigDecimal(value));
+  }
+
+  get supply(): BigInt {
+    let value = this.get("supply");
+    return value.toBigInt();
+  }
+
+  set supply(value: BigInt) {
+    this.set("supply", Value.fromBigInt(value));
+  }
+
+  get reserve(): BigInt {
+    let value = this.get("reserve");
+    return value.toBigInt();
+  }
+
+  set reserve(value: BigInt) {
+    this.set("reserve", Value.fromBigInt(value));
   }
 
   get mintTotalSent(): BigInt {

@@ -201,6 +201,8 @@ export function updateTokenDailyData(call: ethereum.Call, token: Token, mintCost
     let totalReserveUnderlying = new BigDecimal(token_contract.totalReserveUnderlying());
 
     tokenDailyData.token = token.id;
+    tokenDailyData.supply = token_contract.totalSupply();
+    tokenDailyData.reserve = token_contract.totalReserve();
     tokenDailyData.avgPrice = totalReserve.div(totalSupply);
     tokenDailyData.avgUnderlyingPrice = totalReserveUnderlying.div(totalSupply);
     tokenDailyData.mintTotalSent = tokenDailyData.mintTotalSent.plus(mintCost);

@@ -8,6 +8,7 @@ type Transaction @entity {
   received: BigInt
   fee: BigInt
   block: BigInt
+  date: Int!
   token: Token!
 }
 
@@ -55,6 +56,9 @@ type TokenDailyData @entity {
   avgUnderlyingPrice: BigDecimal!
   currentPrice: BigDecimal!
   currentEthPrice: BigDecimal!
+
+  supply: BigInt!
+  reserve: BigInt!
 
   mintTotalSent: BigInt!
   mintTotalReceived: BigInt!

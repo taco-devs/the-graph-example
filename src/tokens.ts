@@ -249,6 +249,7 @@ export function handleDeposit(call: DepositCall): void {
     mint.sent = call.inputs._cost;
     mint.received = received.value0;
     mint.fee = received.value1;
+    mint.date = call.block.timestamp.toI32();;
     mint.block = call.block.number;
     mint.token = token.id;
 
@@ -294,6 +295,7 @@ export function handleDepositUnderlying(call: DepositUnderlyingCall): void {
   mint.sent = call.inputs._underlyingCost;
   mint.received = received.value0;
   mint.fee = received.value1;
+  mint.date = call.block.timestamp.toI32();
   mint.block = call.block.number;
   mint.token = token.id;
 
@@ -334,6 +336,7 @@ export function handleWithdraw(call: WithdrawCall): void {
   redeem.sent = call.inputs._grossShares;
   redeem.received = received.value0;
   redeem.fee = received.value1;
+  redeem.date = call.block.timestamp.toI32();
   redeem.block = call.block.number;
   redeem.token = token.id;
 
@@ -376,6 +379,7 @@ export function handleWithdrawUnderlying(call: WithdrawUnderlyingCall): void {
   redeem.sent = call.inputs._grossShares;
   redeem.received = received;
   redeem.fee = _cost.value1;
+  redeem.date = call.block.timestamp.toI32();
   redeem.block = call.block.number;
   redeem.token = token.id;
 
