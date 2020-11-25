@@ -30,16 +30,20 @@ type Token @entity {
   name: String!
   symbol: String!
   decimals: Int!
-  miningToken: Bytes!
+  hasMiningToken: Boolean!
+  miningToken: Bytes
+  hasStakesToken: Boolean!
+  stakesToken: Bytes
   reserveToken: Bytes!
-  stakesToken: Bytes!
-  underlyingToken: Bytes!
+  hasUnderlyingToken: Boolean!
+  underlyingToken: Bytes
 
   totalSupply: BigInt!
   totalReserve: BigInt!
   depositFee: BigInt!
   withdrawalFee: BigInt!
 
+  lastAvgPrice: BigDecimal!
   lastDelta: BigDecimal!
   countTokenDailyDatas: Int!
   listingDate: Int!
@@ -62,9 +66,11 @@ type TokenDailyData @entity {
 
   mintTotalSent: BigInt!
   mintTotalReceived: BigInt!
-  
+    
   redeemTotalSent: BigInt!
   redeemTotalReceived: BigInt!
+
+  miningTokenBalance: BigInt
 
   txCount: BigInt!
 }

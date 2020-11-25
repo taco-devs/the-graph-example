@@ -337,13 +337,56 @@ export class Token extends Entity {
     this.set("decimals", Value.fromI32(value));
   }
 
-  get miningToken(): Bytes {
-    let value = this.get("miningToken");
-    return value.toBytes();
+  get hasMiningToken(): boolean {
+    let value = this.get("hasMiningToken");
+    return value.toBoolean();
   }
 
-  set miningToken(value: Bytes) {
-    this.set("miningToken", Value.fromBytes(value));
+  set hasMiningToken(value: boolean) {
+    this.set("hasMiningToken", Value.fromBoolean(value));
+  }
+
+  get miningToken(): Bytes | null {
+    let value = this.get("miningToken");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set miningToken(value: Bytes | null) {
+    if (value === null) {
+      this.unset("miningToken");
+    } else {
+      this.set("miningToken", Value.fromBytes(value as Bytes));
+    }
+  }
+
+  get hasStakesToken(): boolean {
+    let value = this.get("hasStakesToken");
+    return value.toBoolean();
+  }
+
+  set hasStakesToken(value: boolean) {
+    this.set("hasStakesToken", Value.fromBoolean(value));
+  }
+
+  get stakesToken(): Bytes | null {
+    let value = this.get("stakesToken");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set stakesToken(value: Bytes | null) {
+    if (value === null) {
+      this.unset("stakesToken");
+    } else {
+      this.set("stakesToken", Value.fromBytes(value as Bytes));
+    }
   }
 
   get reserveToken(): Bytes {
@@ -355,22 +398,30 @@ export class Token extends Entity {
     this.set("reserveToken", Value.fromBytes(value));
   }
 
-  get stakesToken(): Bytes {
-    let value = this.get("stakesToken");
-    return value.toBytes();
+  get hasUnderlyingToken(): boolean {
+    let value = this.get("hasUnderlyingToken");
+    return value.toBoolean();
   }
 
-  set stakesToken(value: Bytes) {
-    this.set("stakesToken", Value.fromBytes(value));
+  set hasUnderlyingToken(value: boolean) {
+    this.set("hasUnderlyingToken", Value.fromBoolean(value));
   }
 
-  get underlyingToken(): Bytes {
+  get underlyingToken(): Bytes | null {
     let value = this.get("underlyingToken");
-    return value.toBytes();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
   }
 
-  set underlyingToken(value: Bytes) {
-    this.set("underlyingToken", Value.fromBytes(value));
+  set underlyingToken(value: Bytes | null) {
+    if (value === null) {
+      this.unset("underlyingToken");
+    } else {
+      this.set("underlyingToken", Value.fromBytes(value as Bytes));
+    }
   }
 
   get totalSupply(): BigInt {
@@ -407,6 +458,15 @@ export class Token extends Entity {
 
   set withdrawalFee(value: BigInt) {
     this.set("withdrawalFee", Value.fromBigInt(value));
+  }
+
+  get lastAvgPrice(): BigDecimal {
+    let value = this.get("lastAvgPrice");
+    return value.toBigDecimal();
+  }
+
+  set lastAvgPrice(value: BigDecimal) {
+    this.set("lastAvgPrice", Value.fromBigDecimal(value));
   }
 
   get lastDelta(): BigDecimal {
@@ -591,6 +651,23 @@ export class TokenDailyData extends Entity {
 
   set redeemTotalReceived(value: BigInt) {
     this.set("redeemTotalReceived", Value.fromBigInt(value));
+  }
+
+  get miningTokenBalance(): BigInt | null {
+    let value = this.get("miningTokenBalance");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set miningTokenBalance(value: BigInt | null) {
+    if (value === null) {
+      this.unset("miningTokenBalance");
+    } else {
+      this.set("miningTokenBalance", Value.fromBigInt(value as BigInt));
+    }
   }
 
   get txCount(): BigInt {

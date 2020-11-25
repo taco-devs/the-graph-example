@@ -27,12 +27,13 @@ import {
   updateTokenDailyData
 } from './priceAggregators';
 
-import { ONE_BI, ZERO_BD, ZERO_BI } from './helpers'
+import {
+  getConfig
+} from './tokenConfiguration';
 
-// Constant types
-const MINT = 'MINT';
-const REDEEM = 'REDEEM';
-const TRANSFER = 'TRANSFER';
+
+import { ONE_BD, ONE_BI, ZERO_BD, ZERO_BI } from './helpers'
+
 
 // TokenManager
 function getToken(address: Address, block: ethereum.Block): Token {
@@ -51,18 +52,34 @@ function getToken(address: Address, block: ethereum.Block): Token {
 
     token = new Token(address.toHex());
 
+    let config = getConfig(token_contract.symbol());
+
     token.listingDate = dayStartTimestamp;
     token.name = token_contract.name();
     token.symbol = token_contract.symbol();
     token.decimals = token_contract.decimals();
-    token.miningToken = token_contract.miningToken();
+    token.hasMiningToken = config.hasMiningToken;
+    token.hasStakesToken = config.hasStakesToken;
+    token.hasUnderlyingToken = config.hasUnderlyingToken;
     token.reserveToken = token_contract.reserveToken();
-    token.stakesToken = token_contract.stakesToken()
-    token.underlyingToken = token_contract.underlyingToken();
     token.totalSupply = ZERO_BI;
+    token.lastAvgPrice = ONE_BD;
     token.lastDelta = ZERO_BD;
     token.countTokenDailyDatas = 0;
     token.cumulativeDailyChange = ZERO_BD;
+
+    if (config.hasMiningToken == true) {
+      token.miningToken = token_contract.miningToken();
+    }
+
+    if (config.hasStakesToken == true) {
+      token.stakesToken = token_contract.stakesToken();
+    }
+
+    if (config.hasUnderlyingToken === true) {
+      token.underlyingToken = token_contract.underlyingToken();
+    } 
+
   }
 
   // Update the total supply after each transaction
@@ -228,7 +245,7 @@ export function handleDeposit(call: DepositCall): void {
 
     // If there isn't a mint object create a new one
     if (mint == null) {
-    mint = new Transaction(call.transaction.hash.toHex());
+      mint = new Transaction(call.transaction.hash.toHex());
     }
 
     // Instantiate the GToken Contract
@@ -249,7 +266,7 @@ export function handleDeposit(call: DepositCall): void {
     mint.sent = call.inputs._cost;
     mint.received = received.value0;
     mint.fee = received.value1;
-    mint.date = call.block.timestamp.toI32();;
+    mint.date = call.block.timestamp.toI32();
     mint.block = call.block.number;
     mint.token = token.id;
 

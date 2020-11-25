@@ -1,5 +1,10 @@
 import { log, BigInt, BigDecimal, Address } from '@graphprotocol/graph-ts'
 
+// Calculation type
+export let GCTOKEN = 'GCTOKEN';
+export let GRO = 'GRO';
+export let STKGRO = 'STKGRO';
+
 export let ZERO_BI = BigInt.fromI32(0)
 export let ONE_BI = BigInt.fromI32(1)
 export let ZERO_BD = BigDecimal.fromString('0')
@@ -18,3 +23,12 @@ export function exponentToBigDecimal(decimals: i32): BigDecimal {
     }
     return bd
   }
+
+
+export class ConfigFile {
+  hasMiningToken: boolean
+  hasStakesToken: boolean
+  hasUnderlyingToken: boolean
+  priceStrategy: string
+  tokenFactor: i32
+}
