@@ -43,6 +43,9 @@ type Token @entity {
   depositFee: BigInt!
   withdrawalFee: BigInt!
 
+  cumulativeTotalValueLockedETH: BigDecimal!
+  cumulativeTotalValueLockedUSD: BigDecimal!
+
   lastAvgPrice: BigDecimal!
   lastDelta: BigDecimal!
   countTokenDailyDatas: Int!
@@ -66,9 +69,11 @@ type TokenDailyData @entity {
 
   mintTotalSent: BigInt!
   mintTotalReceived: BigInt!
-    
   redeemTotalSent: BigInt!
   redeemTotalReceived: BigInt!
+
+  cumulativeTotalValueLockedETH: BigDecimal!
+  cumulativeTotalValueLockedUSD: BigDecimal!
 
   miningTokenBalance: BigInt
 

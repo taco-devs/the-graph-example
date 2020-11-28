@@ -67,6 +67,8 @@ function getToken(address: Address, block: ethereum.Block): Token {
     token.lastDelta = ZERO_BD;
     token.countTokenDailyDatas = 0;
     token.cumulativeDailyChange = ZERO_BD;
+    token.cumulativeTotalValueLockedETH = ZERO_BD;
+    token.cumulativeTotalValueLockedUSD = ZERO_BD;
 
     if (config.hasMiningToken == true) {
       token.miningToken = token_contract.miningToken();
@@ -271,7 +273,7 @@ export function handleDeposit(call: DepositCall): void {
     mint.token = token.id;
 
     mint.save();
-    log.info('hash: '.concat(call.transaction.hash.toHex()).concat(' ').concat(received.value0.toString()), []);
+    // log.info('hash: '.concat(call.transaction.hash.toHex()).concat(' ').concat(received.value0.toString()), []);
 
     // Handle transaction aggregation
     updateTokenDailyData(call, token, call.inputs._cost, received.value0, ZERO_BI, ZERO_BI);
@@ -303,7 +305,7 @@ export function handleDepositUnderlying(call: DepositUnderlyingCall): void {
 
   // Calculate the amount received
   let received = token_contract.calcDepositSharesFromCost(underlyingConversion, totalReserve, totalSupply, depositFee);
-  log.info('hash: '.concat(call.transaction.hash.toHex()).concat(' ').concat(received.value0.toString()), []);
+  // log.info('hash: '.concat(call.transaction.hash.toHex()).concat(' ').concat(received.value0.toString()), []);
 
   mint.from = call.from;
   mint.to = call.to;

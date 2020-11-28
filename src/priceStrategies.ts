@@ -83,13 +83,13 @@ function gcTokenPriceStrategy(token: Token): BigDecimal {
 
         let ethPrice = r1.div(r0).times(oneCTokenUnderlying);
 
-        log.info('Eth price for underlying {} is {}, r0: {}, r1 {}, er: {} ', [
+        /* log.info('Eth price for underlying {} is {}, r0: {}, r1 {}, er: {} ', [
             token.symbol,
             ethPrice.toString(),
             r0.toString(),
             r1.toString(),
             oneCTokenUnderlying.toString(),
-        ])
+        ]) */
         return ethPrice;
     }
 }

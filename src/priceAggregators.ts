@@ -15,7 +15,7 @@ import {
 } from './priceStrategies';
 
 // Update the total value locked
-export function updateTotalValueLocked(mintTotalEth: BigDecimal, redeemTotalEth: BigDecimal): TotalValueLocked {
+export function updateTotalValueLocked(ethDelta: BigDecimal, usdDelta: BigDecimal): TotalValueLocked {
     
     // Get the total value locked
     let tvl = TotalValueLocked.load('1');
@@ -26,8 +26,8 @@ export function updateTotalValueLocked(mintTotalEth: BigDecimal, redeemTotalEth:
         tvl.totalValueLockedUSD = ZERO_BD;
     }
 
-    tvl.totalValueLockedETH = tvl.totalValueLockedETH.plus(mintTotalEth).minus(redeemTotalEth);
-    tvl.totalValueLockedUSD = tvl.totalValueLockedUSD.plus(mintTotalEth.times(getETHCurrentPrice())).minus(redeemTotalEth.times(getETHCurrentPrice()));
+    tvl.totalValueLockedETH = tvl.totalValueLockedETH.plus(ethDelta);
+    tvl.totalValueLockedUSD = tvl.totalValueLockedUSD.plus(usdDelta);
 
     tvl.save();
 
@@ -36,11 +36,15 @@ export function updateTotalValueLocked(mintTotalEth: BigDecimal, redeemTotalEth:
 
 
 // Update the daily data 
-export function updateDailyData(call: ethereum.Call, token: Token, mintTotalReceived: BigInt, redeemTotalReceived: BigInt, mintCost: BigInt, redeemReceived: BigInt): void {
+export function updateDailyData(call: ethereum.Call, token: Token, mintTotalReceived: BigInt, redeemTotalReceived: BigInt, avgTokenPrice: BigDecimal): void {
 
     // Get the token config
     let tokenConfig = getConfig(token.symbol);
     let tokenFactor = exponentToBigDecimal(tokenConfig.tokenFactor);
+
+    // Get token contract
+    let token_contract = GToken.bind(Address.fromString(token.id));
+    let totalSupply = new BigDecimal(token_contract.totalSupply());
 
     let timestamp = call.block.timestamp.toI32();
     let dayID = timestamp / 86400
@@ -66,29 +70,34 @@ export function updateDailyData(call: ethereum.Call, token: Token, mintTotalRece
     // Calculate the cumulative for the base asset in ETH
     let mint_volume_eth = new BigDecimal(mintTotalReceived);
     let redeem_volumen_eth = new BigDecimal(redeemTotalReceived);
-    
+        
     let BD_mint_volume_eth = mint_volume_eth.div(tokenFactor).times(token_eth_price);
     let BD_redeem_volume_eth = redeem_volumen_eth.div(tokenFactor).times(token_eth_price);
 
     dailyData.dailyETHVolume = BD_mint_volume_eth.plus(BD_redeem_volume_eth);
     dailyData.dailyUSDVolume = BD_mint_volume_eth.plus(BD_redeem_volume_eth).times(getETHCurrentPrice());
 
-    // Get the total value locked on each day
-    
     let currentEthTVL = BD_mint_volume_eth.minus(BD_redeem_volume_eth);
     let currentUsdTVL = (BD_mint_volume_eth.times(getETHCurrentPrice())).minus(BD_redeem_volume_eth.times(getETHCurrentPrice()));
 
     dailyData.totalValueLockedETH = currentEthTVL;
     dailyData.totalValueLockedUSD = currentUsdTVL;
 
+    // Update TVL
 
-    // Update the total value locked
-    let BD_mint_cost = new BigDecimal(mintCost);
-    let BD_redeem_received = new BigDecimal(redeemReceived);
+
+    let currentEthValue = totalSupply.div(tokenFactor).times(token_eth_price).times(avgTokenPrice);
+    let currentUSDValue = totalSupply.div(tokenFactor).times(token_eth_price).times(getETHCurrentPrice()).times(avgTokenPrice);
+
+    // Load last cumulatives 
+    let ethDelta  = currentEthValue.minus(token.cumulativeTotalValueLockedETH);
+    let usdDelta = currentUSDValue.minus(token.cumulativeTotalValueLockedUSD);
+    
+    log.info(`token {}, tokenCumulativeEth: {}, currentEthValue: {}, ethDelta: {}, tokenCumulativeUsd {} currentUSDvalue: {}, usdDelta, {}`, [token.symbol, token.cumulativeTotalValueLockedETH.toString(), currentEthValue.toString(), ethDelta.toString(), token.cumulativeTotalValueLockedUSD.toString(), currentUSDValue.toString(), usdDelta.toString() ])
 
     let tvl = updateTotalValueLocked(
-        BD_mint_cost.div(tokenFactor).times(token_eth_price),
-        BD_redeem_received.div(tokenFactor).times(token_eth_price),
+        ethDelta,
+        usdDelta,
     )
 
     dailyData.cumulativeTotalValueLockedETH = tvl.totalValueLockedETH;
@@ -101,6 +110,10 @@ export function updateDailyData(call: ethereum.Call, token: Token, mintTotalRece
 // Update the daily data for a token
 export function updateTokenDailyData(call: ethereum.Call, token: Token, mintCost: BigInt, mintReceived: BigInt, redeemCost: BigInt, redeemReceived: BigInt): void {
     
+    let tokenConfig = getConfig(token.symbol);
+    let tokenFactor = exponentToBigDecimal(tokenConfig.tokenFactor);
+    let token_eth_price = calculateTokenCurrentPrice(token);
+
     let timestamp = call.block.timestamp.toI32();
     let dayID = timestamp / 86400
     let dayStartTimestamp = dayID * 86400
@@ -123,6 +136,8 @@ export function updateTokenDailyData(call: ethereum.Call, token: Token, mintCost
         tokenDailyData.redeemTotalSent = ZERO_BI;
         tokenDailyData.redeemTotalReceived = ZERO_BI;
         tokenDailyData.currentPrice = ZERO_BD;
+        tokenDailyData.cumulativeTotalValueLockedETH = ZERO_BD;
+        tokenDailyData.cumulativeTotalValueLockedUSD = ZERO_BD;
 
         tokenDailyData.miningTokenBalance = ZERO_BI;
 
@@ -150,6 +165,10 @@ export function updateTokenDailyData(call: ethereum.Call, token: Token, mintCost
     tokenDailyData.mintTotalReceived = tokenDailyData.mintTotalReceived.plus(mintReceived);
     tokenDailyData.redeemTotalSent = tokenDailyData.redeemTotalSent.plus(redeemCost);
     tokenDailyData.redeemTotalReceived = tokenDailyData.redeemTotalReceived.plus(redeemReceived);
+
+    // Get total value locked
+    tokenDailyData.cumulativeTotalValueLockedETH = totalSupply.div(tokenFactor).times(token_eth_price).times(tokenDailyData.avgPrice);
+    tokenDailyData.cumulativeTotalValueLockedUSD = totalSupply.div(tokenFactor).times(token_eth_price).times(getETHCurrentPrice()).times(tokenDailyData.avgPrice);
 
     // Get the mining token balance
     if (token.hasMiningToken == true) {
@@ -181,6 +200,7 @@ export function updateTokenDailyData(call: ethereum.Call, token: Token, mintCost
         }
         
         token.cumulativeDailyChange = token.cumulativeDailyChange.minus(token.lastDelta).plus(changeDelta);
+        
         token.lastDelta = changeDelta;
     } else {
         // Get first day delta
@@ -196,9 +216,11 @@ export function updateTokenDailyData(call: ethereum.Call, token: Token, mintCost
     // Save the last price 
     token.lastAvgPrice = totalReserve.div(totalSupply);
 
-
     // Update Daily Data aggregation
-    updateDailyData(call, token, tokenDailyData.mintTotalSent, tokenDailyData.redeemTotalReceived, mintCost, redeemReceived );
+    updateDailyData(call, token, tokenDailyData.mintTotalSent, tokenDailyData.redeemTotalReceived, tokenDailyData.avgPrice);
+
+    token.cumulativeTotalValueLockedETH = totalSupply.div(tokenFactor).times(token_eth_price).times(tokenDailyData.avgPrice);
+    token.cumulativeTotalValueLockedUSD = totalSupply.div(tokenFactor).times(token_eth_price).times(getETHCurrentPrice()).times(tokenDailyData.avgPrice);
     
     token.save();
 }

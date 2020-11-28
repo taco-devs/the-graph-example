@@ -460,6 +460,24 @@ export class Token extends Entity {
     this.set("withdrawalFee", Value.fromBigInt(value));
   }
 
+  get cumulativeTotalValueLockedETH(): BigDecimal {
+    let value = this.get("cumulativeTotalValueLockedETH");
+    return value.toBigDecimal();
+  }
+
+  set cumulativeTotalValueLockedETH(value: BigDecimal) {
+    this.set("cumulativeTotalValueLockedETH", Value.fromBigDecimal(value));
+  }
+
+  get cumulativeTotalValueLockedUSD(): BigDecimal {
+    let value = this.get("cumulativeTotalValueLockedUSD");
+    return value.toBigDecimal();
+  }
+
+  set cumulativeTotalValueLockedUSD(value: BigDecimal) {
+    this.set("cumulativeTotalValueLockedUSD", Value.fromBigDecimal(value));
+  }
+
   get lastAvgPrice(): BigDecimal {
     let value = this.get("lastAvgPrice");
     return value.toBigDecimal();
@@ -651,6 +669,24 @@ export class TokenDailyData extends Entity {
 
   set redeemTotalReceived(value: BigInt) {
     this.set("redeemTotalReceived", Value.fromBigInt(value));
+  }
+
+  get cumulativeTotalValueLockedETH(): BigDecimal {
+    let value = this.get("cumulativeTotalValueLockedETH");
+    return value.toBigDecimal();
+  }
+
+  set cumulativeTotalValueLockedETH(value: BigDecimal) {
+    this.set("cumulativeTotalValueLockedETH", Value.fromBigDecimal(value));
+  }
+
+  get cumulativeTotalValueLockedUSD(): BigDecimal {
+    let value = this.get("cumulativeTotalValueLockedUSD");
+    return value.toBigDecimal();
+  }
+
+  set cumulativeTotalValueLockedUSD(value: BigDecimal) {
+    this.set("cumulativeTotalValueLockedUSD", Value.fromBigDecimal(value));
   }
 
   get miningTokenBalance(): BigInt | null {
