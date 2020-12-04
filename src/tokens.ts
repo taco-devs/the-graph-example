@@ -58,6 +58,7 @@ function getToken(address: Address, block: ethereum.Block): Token {
     token.name = token_contract.name();
     token.symbol = token_contract.symbol();
     token.decimals = token_contract.decimals();
+    token.isActive = true;
     token.hasMiningToken = config.hasMiningToken;
     token.hasStakesToken = config.hasStakesToken;
     token.hasUnderlyingToken = config.hasUnderlyingToken;

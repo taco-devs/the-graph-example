@@ -97,6 +97,17 @@ import { ONE_BI, ZERO_BD, ZERO_BI } from './helpers'
 // }
 
 export function handleNewToken(event: NewToken): void {
+
+    // Disable token isActive flag for old tokens
+    if (event.params._oldGrowthToken != null) {
+      let token = Token.load(event.params._oldGrowthToken.toHex());
+
+      if (token != null) {
+        token.isActive = false;
+        token.save();
+      }
+    }
+
     // Instantiate the new GToken 
     GTokenTemplate.create(event.params._growthToken);
 }

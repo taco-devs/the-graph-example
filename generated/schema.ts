@@ -337,6 +337,15 @@ export class Token extends Entity {
     this.set("decimals", Value.fromI32(value));
   }
 
+  get isActive(): boolean {
+    let value = this.get("isActive");
+    return value.toBoolean();
+  }
+
+  set isActive(value: boolean) {
+    this.set("isActive", Value.fromBoolean(value));
+  }
+
   get hasMiningToken(): boolean {
     let value = this.get("hasMiningToken");
     return value.toBoolean();

@@ -1,11 +1,12 @@
 import { CToken } from "../generated/templates/GToken/CToken"
 import { ERC20 } from "../generated/templates/GToken/ERC20"
 import { GToken } from "../generated/templates/GToken/GToken"
+import { PMT as PMToken } from "../generated/templates/GToken/PMT"
 import { UniswapV2Pair } from '../generated/templates/GToken/UniswapV2Pair';
 import { Token, TokenDailyData, DailyData, TotalValueLocked } from './../generated/schema';
 import { BigDecimal, BigInt, ethereum, Address, log } from '@graphprotocol/graph-ts';
 import { 
-    ONE_BD, ONE_BI, ZERO_BD, ZERO_BI, exponentToBigDecimal,
+    ONE_BD, ONE_BI, ZERO_BD, ZERO_BI, exponentToBigDecimal, PMT,
  } from './helpers';
 import {
     getConfig
@@ -84,20 +85,27 @@ export function updateDailyData(call: ethereum.Call, token: Token, mintTotalRece
     dailyData.totalValueLockedUSD = currentUsdTVL;
 
     // Update TVL
+    let tokenPercentage = ONE_BD;
+    if (tokenConfig.priceStrategy.includes(PMT)) {
+        let pmt_contract = PMToken.bind(Address.fromString(token.id));
+        let reserveToken = pmt_contract.reserveToken();
+        let rawTokenPercentage = new BigDecimal(pmt_contract.tokenPercent(reserveToken));
+        let percentageFactor = exponentToBigDecimal(18);
+        tokenPercentage = rawTokenPercentage.div(percentageFactor);
+    } 
 
-
-    let currentEthValue = totalSupply.div(tokenFactor).times(token_eth_price).times(avgTokenPrice);
+    let currentEthValue = totalSupply.div(tokenFactor).times(token_eth_price)
     let currentUSDValue = totalSupply.div(tokenFactor).times(token_eth_price).times(getETHCurrentPrice()).times(avgTokenPrice);
 
     // Load last cumulatives 
     let ethDelta  = currentEthValue.minus(token.cumulativeTotalValueLockedETH);
     let usdDelta = currentUSDValue.minus(token.cumulativeTotalValueLockedUSD);
     
-    log.info(`token {}, tokenCumulativeEth: {}, currentEthValue: {}, ethDelta: {}, tokenCumulativeUsd {} currentUSDvalue: {}, usdDelta, {}`, [token.symbol, token.cumulativeTotalValueLockedETH.toString(), currentEthValue.toString(), ethDelta.toString(), token.cumulativeTotalValueLockedUSD.toString(), currentUSDValue.toString(), usdDelta.toString() ])
+    log.info(`tokenPercentage: {}, token {}, tokenCumulativeEth: {}, currentEthValue: {}, ethDelta: {}, tokenCumulativeUsd {} currentUSDvalue: {}, usdDelta, {}`, [tokenPercentage.toString(), token.symbol, token.cumulativeTotalValueLockedETH.toString(), currentEthValue.toString(), ethDelta.toString(), token.cumulativeTotalValueLockedUSD.toString(), currentUSDValue.toString(), usdDelta.toString() ])
 
     let tvl = updateTotalValueLocked(
-        ethDelta,
-        usdDelta,
+        ethDelta.times(tokenPercentage),
+        usdDelta.times(tokenPercentage),
     )
 
     dailyData.cumulativeTotalValueLockedETH = tvl.totalValueLockedETH;
@@ -120,7 +128,9 @@ export function updateTokenDailyData(call: ethereum.Call, token: Token, mintCost
 
     let tokenDailyDataID = token.symbol
         .concat('_')
-        .concat(BigInt.fromI32(dayID).toString());
+        .concat(BigInt.fromI32(dayID).toString())
+        .concat('_')
+        .concat(token.id.toString());
 
     let tokenDailyData = TokenDailyData.load(tokenDailyDataID);
 
@@ -186,7 +196,9 @@ export function updateTokenDailyData(call: ethereum.Call, token: Token, mintCost
     // Handle cumulative delta
     let yesterdayID = token.symbol
         .concat('_')
-        .concat(BigInt.fromI32(dayID - 1).toString());
+        .concat(BigInt.fromI32(dayID - 1).toString())
+        .concat('_')
+        .concat(token.id.toString());
     let yesterdayTokenDailyData = TokenDailyData.load(yesterdayID);
 
     if (yesterdayTokenDailyData) {

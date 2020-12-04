@@ -1,9 +1,12 @@
 import { log, BigInt, BigDecimal, Address } from '@graphprotocol/graph-ts'
 
 // Calculation type
+export let PMT = 'PMT';
 export let GCTOKEN = 'GCTOKEN';
 export let GRO = 'GRO';
 export let STKGRO = 'STKGRO';
+export let GETH = 'GETH';
+export let GCETH = 'GCETH';
 
 export let ZERO_BI = BigInt.fromI32(0)
 export let ONE_BI = BigInt.fromI32(1)

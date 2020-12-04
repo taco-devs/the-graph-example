@@ -40,6 +40,8 @@ templates:
       abis:
         - name: GToken
           file: ./abis/GToken.json
+        - name: PMT
+          file: ./abis/PMT.json
         - name: UniswapV2Pair
           file: ./abis/UniswapV2Pair.json
         - name: CToken

@@ -7,13 +7,13 @@ import { Token } from './../generated/schema';
 import { BigDecimal, ethereum, Address, log } from '@graphprotocol/graph-ts';
 import { 
     ONE_BD, ONE_BI, ZERO_BD, ZERO_BI, exponentToBigDecimal,
-    GCTOKEN, STKGRO
+    GCTOKEN, STKGRO, PMT, GETH, GCETH
  } from './helpers';
 import { getPair } from './tokenPairRouter';
 import { getMarket } from './tokenMarketRouter';
 import {
     getConfig
-  } from './tokenConfiguration';
+} from './tokenConfiguration';
 
   
 const USDC_WETH_PAIR = '0xb4e16d0168e52d35cacd2c6185b44281ec28c9dc';
@@ -83,13 +83,6 @@ function gcTokenPriceStrategy(token: Token): BigDecimal {
 
         let ethPrice = r1.div(r0).times(oneCTokenUnderlying);
 
-        /* log.info('Eth price for underlying {} is {}, r0: {}, r1 {}, er: {} ', [
-            token.symbol,
-            ethPrice.toString(),
-            r0.toString(),
-            r1.toString(),
-            oneCTokenUnderlying.toString(),
-        ]) */
         return ethPrice;
     }
 }
@@ -124,6 +117,73 @@ function stkGROPriceStrategy(token: Token): BigDecimal {
 
 }
 
+function pmtPriceStrategy(token: Token): BigDecimal {
+    
+    let tokenConfig = getConfig(token.symbol);
+
+    // let pmtContract = GToken.bind(Address.fromString(token.id));
+    // let BD_SUPPLY = new BigDecimal(pmtContract.totalSupply());
+    // let BD_RESERVE = new BigDecimal(pmtContract.totalReserve());
+
+    // Get Uniswap Pair (GRO)
+    let pair_adress = getPair(token);
+    let pair = UniswapV2Pair.bind(Address.fromString(pair_adress));
+
+    let r0Factor = exponentToBigDecimal(tokenConfig.tokenFactor); // Underlying decimals
+    let r1Factor = exponentToBigDecimal(18); // assuming reserves1 are in ETH is always 18
+
+    let reserves0 = new BigDecimal(pair.getReserves().value0);
+    let reserves1 = new BigDecimal(pair.getReserves().value1);
+
+    let r0 = reserves0.div(r0Factor);
+    let r1 = reserves1.div(r1Factor);
+
+    let ethPrice = r1.div(r0);
+    return ethPrice;
+}
+
+
+/* 
+    Remove any price calculations for gETH strategy
+*/
+function gETHStrategy(token: Token): BigDecimal {
+    let geth_contract = GToken.bind(Address.fromString(token.id));
+    let BD_SUPPLY = new BigDecimal(geth_contract.totalSupply());
+    let BD_RESERVE = new BigDecimal(geth_contract.totalReserve());
+    
+    return BD_RESERVE.div(BD_SUPPLY);
+}
+
+/* 
+    Remove any price calculations for gETH strategy
+*/
+// Calculate current pair/eth price with CTOKEN strategy
+function gcETHStrategy(token: Token): BigDecimal {
+
+    if (token.hasUnderlyingToken == false) return ZERO_BD;
+
+    // Load Underlying token address to get decimals
+    let underlying_address = Address.fromString(token.underlyingToken.toHexString());
+    let underlying_token_contract = ERC20.bind(underlying_address);
+    let underLying_decimals = underlying_token_contract.decimals();
+    let ctoken_decimals = 8;
+    
+    // Get Compound Market
+    let token_market_address = getMarket(token);
+    let oneCTokenUnderlying = ONE_BD;
+
+    if (token_market_address == null) {
+        return ONE_BD;
+    } else {
+        let token_market = CToken.bind(Address.fromString(token_market_address));
+        
+        let exchangeRate = new BigDecimal(token_market.exchangeRateStored());
+        let mantissa = exponentToBigDecimal(18 + underLying_decimals - ctoken_decimals);
+
+        return oneCTokenUnderlying = exchangeRate.div(mantissa);
+    } 
+}
+
 // Route between strategies
 export function calculateTokenCurrentPrice(token: Token): BigDecimal {
     // Get the config
@@ -131,6 +191,9 @@ export function calculateTokenCurrentPrice(token: Token): BigDecimal {
     // Route the strategy
     if (tokenConfig.priceStrategy.includes(GCTOKEN)) return gcTokenPriceStrategy(token);
     if (tokenConfig.priceStrategy.includes(STKGRO)) return stkGROPriceStrategy(token);
+    if (tokenConfig.priceStrategy.includes(PMT)) return pmtPriceStrategy(token);
+    if (tokenConfig.priceStrategy.includes(GETH)) return gETHStrategy(token);
+    if (tokenConfig.priceStrategy.includes(GCETH)) return gcETHStrategy(token);
 
     // If no matching strategy return 0
     return ZERO_BD;
