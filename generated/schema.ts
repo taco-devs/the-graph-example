@@ -195,15 +195,6 @@ export class User extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get address(): Bytes {
-    let value = this.get("address");
-    return value.toBytes();
-  }
-
-  set address(value: Bytes) {
-    this.set("address", Value.fromBytes(value));
-  }
-
   get transactions(): BigInt | null {
     let value = this.get("transactions");
     if (value === null) {
@@ -277,6 +268,15 @@ export class UserBalance extends Entity {
 
   set amount(value: BigDecimal) {
     this.set("amount", Value.fromBigDecimal(value));
+  }
+
+  get updated(): i32 {
+    let value = this.get("updated");
+    return value.toI32();
+  }
+
+  set updated(value: i32) {
+    this.set("updated", Value.fromI32(value));
   }
 }
 

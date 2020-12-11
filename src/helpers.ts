@@ -1,6 +1,8 @@
 import { log, BigInt, BigDecimal, Address } from '@graphprotocol/graph-ts'
 
 // Calculation type
+export let GETH_BRIDGE = '0x04f555c05f2961137d135347402d6d3022d6e8f5';
+
 export let PMT = 'PMT';
 export let GCTOKEN = 'GCTOKEN';
 export let GRO = 'GRO';

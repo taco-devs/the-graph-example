@@ -32,7 +32,7 @@ import {
 } from './tokenConfiguration';
 
 
-import { ONE_BD, ONE_BI, ZERO_BD, ZERO_BI } from './helpers'
+import { GETH_BRIDGE, GETH, ONE_BD, ONE_BI, ZERO_BD, ZERO_BI } from './helpers'
 
 
 // TokenManager
@@ -262,7 +262,7 @@ export function handleDeposit(call: DepositCall): void {
     // Calculate the amount received
     let received = token_contract.calcDepositSharesFromCost(call.inputs._cost, totalReserve, totalSupply, depositFee);
 
-    mint.from = call.from;
+    mint.from = call.transaction.from;
     mint.to = call.to;
     mint.action = 'mint';
     mint.type = 'base';
@@ -308,7 +308,7 @@ export function handleDepositUnderlying(call: DepositUnderlyingCall): void {
   let received = token_contract.calcDepositSharesFromCost(underlyingConversion, totalReserve, totalSupply, depositFee);
   // log.info('hash: '.concat(call.transaction.hash.toHex()).concat(' ').concat(received.value0.toString()), []);
 
-  mint.from = call.from;
+  mint.from = call.transaction.from;
   mint.to = call.to;
   mint.action = 'mint';
   mint.type = 'underlying';
@@ -349,7 +349,7 @@ export function handleWithdraw(call: WithdrawCall): void {
   // Calculate the amount received
   let received = token_contract.calcWithdrawalCostFromShares(call.inputs._grossShares, totalReserve, totalSupply, withdrawalFee);
 
-  redeem.from = call.from;
+  redeem.from = call.transaction.from;
   redeem.to = call.to;
   redeem.action = 'redeem';
   redeem.type = 'base';
@@ -392,7 +392,7 @@ export function handleWithdrawUnderlying(call: WithdrawUnderlyingCall): void {
   // Calculate the amount received
   let received = token_contract.calcUnderlyingCostFromCost(_cost.value0, exchangeRate);
 
-  redeem.from = call.from;
+  redeem.from = call.transaction.from;
   redeem.to = call.to;
   redeem.action = 'redeem';
   redeem.type = 'underlying';
@@ -411,56 +411,86 @@ export function handleWithdrawUnderlying(call: WithdrawUnderlyingCall): void {
 
 export function handleTransfer(event: Transfer): void {
 
-  // TODO
-  // 1 - Handle Balancer Pools
-
-
   let token = getToken(event.address, event.block);
 
   let BD_amount = new BigDecimal(event.params.value);
 
   // Check for the sender
-  let sender = User.load(event.params.from.toHex());
+  let sender_id = event.params.from.toHex();
+
+  // If the from param comes from gETH Bridge change the sender_id
+  if (event.params.from.toHexString().includes(GETH_BRIDGE)) {
+    sender_id = event.transaction.from.toHex();
+  }
+
+  let sender = User.load(sender_id);
 
   if (sender == null) {
-    sender = new User(event.params.from.toHex());
-    sender.address = event.params.from;
+    sender = new User(sender_id);
+    sender.transactions = ZERO_BI;
   } 
+  
 
   // Balance
-  let sender_id = token.symbol.concat('_').concat(event.params.from.toHex());
+  // Build the ID to support assets with same name and multiple versions  
+  let sender_balance_id = 
+    token.symbol
+    .concat('_')
+    .concat(token.id)
+    .concat('_')
+    .concat(sender_id);
 
-  let sender_balance = UserBalance.load(sender_id);
+  let sender_balance = UserBalance.load(sender_balance_id);
 
   if (sender_balance == null) {
-    sender_balance = new UserBalance(sender_id);
+    sender_balance = new UserBalance(sender_balance_id);
     sender_balance.amount = BD_amount;
   }
 
+  sender.transactions = sender.transactions.plus(ONE_BI);
+
   sender_balance.token = token.id;
   sender_balance.user = sender.id;
+  sender_balance.updated = event.block.timestamp.toI32();
   sender_balance.amount = sender_balance.amount.minus(BD_amount);
   
   // Check for the receiver
-  let receiver = User.load(event.params.to.toHex());
+
+  let receiver_id = event.params.to.toHex();
+
+  // If the from param comes from gETH Bridge change the sender_id
+  if (event.params.to.toHexString().includes(GETH_BRIDGE)) {
+    receiver_id = event.transaction.from.toHex();
+  }
+  
+
+  let receiver = User.load(receiver_id);
 
   if (receiver == null) {
-    receiver = new User(event.params.to.toHex());
-    receiver.address = event.params.to;
+    receiver = new User(receiver_id);
+    receiver.transactions = ZERO_BI;
   } 
 
-  // Balance
-  let receiver_id = token.symbol.concat('_').concat(event.params.to.toHex());
+  receiver.transactions = receiver.transactions.plus(ONE_BI);
 
-  let receiver_balance = UserBalance.load(receiver_id);
+  // Balance
+  let receiver_balance_id = 
+    token.symbol
+    .concat('_')
+    .concat(token.id)
+    .concat('_')
+    .concat(receiver_id);
+
+  let receiver_balance = UserBalance.load(receiver_balance_id);
 
   if (receiver_balance == null) {
-    receiver_balance = new UserBalance(receiver_id);
+    receiver_balance = new UserBalance(receiver_balance_id);
     receiver_balance.amount = ZERO_BD;
   }
 
   receiver_balance.token = token.id;
   receiver_balance.user = receiver.id;
+  receiver_balance.updated = event.block.timestamp.toI32();
   receiver_balance.amount = receiver_balance.amount.plus(BD_amount);
 
 
