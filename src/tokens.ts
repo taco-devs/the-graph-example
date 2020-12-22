@@ -32,7 +32,7 @@ import {
 } from './tokenConfiguration';
 
 
-import { GETH_BRIDGE, GETH, ONE_BD, ONE_BI, ZERO_BD, ZERO_BI } from './helpers'
+import { GETH_BRIDGE, GETH, ONE_BD, ONE_BI, ZERO_BD, ZERO_BI, BURN_ADDRESS } from './helpers'
 
 
 // TokenManager
@@ -60,6 +60,8 @@ function getToken(address: Address, block: ethereum.Block): Token {
     token.decimals = token_contract.decimals();
     token.isActive = true;
     token.hasMiningToken = config.hasMiningToken;
+    token.miningTokenBalance = ZERO_BI;
+    token.miningToken = Address.fromString(BURN_ADDRESS);
     token.hasStakesToken = config.hasStakesToken;
     token.hasUnderlyingToken = config.hasUnderlyingToken;
     token.reserveToken = token_contract.reserveToken();

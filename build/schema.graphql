@@ -32,7 +32,8 @@ type Token @entity {
   decimals: Int!
   isActive: Boolean!
   hasMiningToken: Boolean!
-  miningToken: Bytes
+  miningToken: Bytes!
+  miningTokenBalance: BigInt!
   hasStakesToken: Boolean!
   stakesToken: Bytes
   reserveToken: Bytes!

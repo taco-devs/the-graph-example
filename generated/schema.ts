@@ -355,21 +355,22 @@ export class Token extends Entity {
     this.set("hasMiningToken", Value.fromBoolean(value));
   }
 
-  get miningToken(): Bytes | null {
+  get miningToken(): Bytes {
     let value = this.get("miningToken");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toBytes();
-    }
+    return value.toBytes();
   }
 
-  set miningToken(value: Bytes | null) {
-    if (value === null) {
-      this.unset("miningToken");
-    } else {
-      this.set("miningToken", Value.fromBytes(value as Bytes));
-    }
+  set miningToken(value: Bytes) {
+    this.set("miningToken", Value.fromBytes(value));
+  }
+
+  get miningTokenBalance(): BigInt {
+    let value = this.get("miningTokenBalance");
+    return value.toBigInt();
+  }
+
+  set miningTokenBalance(value: BigInt) {
+    this.set("miningTokenBalance", Value.fromBigInt(value));
   }
 
   get hasStakesToken(): boolean {

@@ -4,7 +4,7 @@ import { GToken } from "../generated/templates/GToken/GToken"
 import { PMT as PMToken } from "../generated/templates/GToken/PMT"
 import { UniswapV2Pair } from '../generated/templates/GToken/UniswapV2Pair';
 import { Token, TokenDailyData, DailyData, TotalValueLocked } from './../generated/schema';
-import { BigDecimal, BigInt, ethereum, Address, log } from '@graphprotocol/graph-ts';
+import { BigDecimal, BigInt, ethereum, Address, Bytes, log } from '@graphprotocol/graph-ts';
 import { 
     ONE_BD, ONE_BI, ZERO_BD, ZERO_BI, exponentToBigDecimal, PMT,
  } from './helpers';
@@ -184,6 +184,7 @@ export function updateTokenDailyData(call: ethereum.Call, token: Token, mintCost
     if (token.hasMiningToken == true) {
         let mining_contract = ERC20.bind(token_contract.miningToken());
         tokenDailyData.miningTokenBalance = mining_contract.balanceOf(Address.fromString(token.id));
+        token.miningTokenBalance = mining_contract.balanceOf(Address.fromString(token.id));
     }
     
     // Calculate token price * current avgPrice
@@ -227,6 +228,7 @@ export function updateTokenDailyData(call: ethereum.Call, token: Token, mintCost
 
     // Save the last price 
     token.lastAvgPrice = totalReserve.div(totalSupply);
+
 
     // Update Daily Data aggregation
     updateDailyData(call, token, tokenDailyData.mintTotalSent, tokenDailyData.redeemTotalReceived, tokenDailyData.avgPrice);
