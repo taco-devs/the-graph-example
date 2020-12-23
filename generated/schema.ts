@@ -434,6 +434,24 @@ export class Token extends Entity {
     }
   }
 
+  get hasGDAIReserve(): boolean {
+    let value = this.get("hasGDAIReserve");
+    return value.toBoolean();
+  }
+
+  set hasGDAIReserve(value: boolean) {
+    this.set("hasGDAIReserve", Value.fromBoolean(value));
+  }
+
+  get gDAIReserve(): BigInt {
+    let value = this.get("gDAIReserve");
+    return value.toBigInt();
+  }
+
+  set gDAIReserve(value: BigInt) {
+    this.set("gDAIReserve", Value.fromBigInt(value));
+  }
+
   get totalSupply(): BigInt {
     let value = this.get("totalSupply");
     return value.toBigInt();
@@ -495,6 +513,24 @@ export class Token extends Entity {
 
   set lastAvgPrice(value: BigDecimal) {
     this.set("lastAvgPrice", Value.fromBigDecimal(value));
+  }
+
+  get lastUSDPrice(): BigDecimal {
+    let value = this.get("lastUSDPrice");
+    return value.toBigDecimal();
+  }
+
+  set lastUSDPrice(value: BigDecimal) {
+    this.set("lastUSDPrice", Value.fromBigDecimal(value));
+  }
+
+  get lastETHPrice(): BigDecimal {
+    let value = this.get("lastETHPrice");
+    return value.toBigDecimal();
+  }
+
+  set lastETHPrice(value: BigDecimal) {
+    this.set("lastETHPrice", Value.fromBigDecimal(value));
   }
 
   get lastDelta(): BigDecimal {

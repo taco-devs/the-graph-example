@@ -65,8 +65,13 @@ function getToken(address: Address, block: ethereum.Block): Token {
     token.hasStakesToken = config.hasStakesToken;
     token.hasUnderlyingToken = config.hasUnderlyingToken;
     token.reserveToken = token_contract.reserveToken();
+    token.hasGDAIReserve = config.hasGDAIReserve;
+    token.gDAIReserve = ZERO_BI;
+    
     token.totalSupply = ZERO_BI;
     token.lastAvgPrice = ONE_BD;
+    token.lastUSDPrice = ONE_BD;
+    token.lastETHPrice = ONE_BD;
     token.lastDelta = ZERO_BD;
     token.countTokenDailyDatas = 0;
     token.cumulativeDailyChange = ZERO_BD;

@@ -6,7 +6,7 @@ import { UniswapV2Pair } from '../generated/templates/GToken/UniswapV2Pair';
 import { Token, TokenDailyData, DailyData, TotalValueLocked } from './../generated/schema';
 import { BigDecimal, BigInt, ethereum, Address, Bytes, log } from '@graphprotocol/graph-ts';
 import { 
-    ONE_BD, ONE_BI, ZERO_BD, ZERO_BI, exponentToBigDecimal, PMT,
+    ONE_BD, ONE_BI, ZERO_BD, ZERO_BI, exponentToBigDecimal, PMT, GDAI_ADDRESS
  } from './helpers';
 import {
     getConfig
@@ -228,6 +228,14 @@ export function updateTokenDailyData(call: ethereum.Call, token: Token, mintCost
 
     // Save the last price 
     token.lastAvgPrice = totalReserve.div(totalSupply);
+    token.lastUSDPrice = calculateTokenCurrentPrice(token).times(getETHCurrentPrice()).times(tokenDailyData.avgPrice);
+    token.lastETHPrice = calculateTokenCurrentPrice(token).times(tokenDailyData.avgPrice);
+
+    // GET Reserve for gDAI on type 2 
+    if (token.hasGDAIReserve) {
+        let gDAI_contract = ERC20.bind(Address.fromString(GDAI_ADDRESS));
+        token.gDAIReserve = gDAI_contract.balanceOf(Address.fromString(token.id));
+    }
 
 
     // Update Daily Data aggregation

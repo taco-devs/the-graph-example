@@ -3,6 +3,7 @@ import { log, BigInt, BigDecimal, Address } from '@graphprotocol/graph-ts'
 // Calculation type
 export let BURN_ADDRESS = '0x0000000000000000000000000000000000000000';
 export let GETH_BRIDGE = '0x04f555c05f2961137d135347402d6d3022d6e8f5';
+export let GDAI_ADDRESS = '0x5301988A8EB906a65b57e9BAF4750A3C74e3E635';
 
 export let PMT = 'PMT';
 export let GCTOKEN = 'GCTOKEN';
@@ -35,6 +36,7 @@ export class ConfigFile {
   hasMiningToken: boolean
   hasStakesToken: boolean
   hasUnderlyingToken: boolean
+  hasGDAIReserve: boolean
   priceStrategy: string
   tokenFactor: i32
 }

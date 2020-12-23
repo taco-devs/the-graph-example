@@ -39,6 +39,8 @@ type Token @entity {
   reserveToken: Bytes!
   hasUnderlyingToken: Boolean!
   underlyingToken: Bytes
+  hasGDAIReserve: Boolean!
+  gDAIReserve: BigInt!
 
   totalSupply: BigInt!
   totalReserve: BigInt!
@@ -49,6 +51,8 @@ type Token @entity {
   cumulativeTotalValueLockedUSD: BigDecimal!
 
   lastAvgPrice: BigDecimal!
+  lastUSDPrice: BigDecimal!
+  lastETHPrice: BigDecimal!
   lastDelta: BigDecimal!
   countTokenDailyDatas: Int!
   listingDate: Int!
